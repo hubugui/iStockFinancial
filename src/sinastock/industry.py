@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+#coding:gbk
 
 import os
 import sys
@@ -22,12 +23,37 @@ def write_excel(values, count, path):
 	wbk = xlwt.Workbook()
 	sheet = wbk.add_sheet('sheet 1', cell_overwrite_ok=True)
 
+	# head style
+	head_style = xlwt.XFStyle()
+
+	# font
+	head_font = xlwt.Font()
+	head_font.colour_index = 4
+	head_font.width = 256 * 100
+	head_font.height = 8*20
+
+	head_style.font = head_font
+
+	# alignment
+	head_alignment = xlwt.Formatting.Alignment()
+	head_alignment.horz = xlwt.Formatting.Alignment.HORZ_CENTER
+	head_alignment.vert = xlwt.Formatting.Alignment.VERT_CENTER
+
+	head_style.alignment = head_alignment
+
+	sheet.write(0, 0, 'Ãû³Æ'.decode('gbk'), head_style)
+	sheet.write(0, 1, 'ÊýÖµ'.decode('gbk'), head_style)
+
+	# col width
+	sheet.col(0).width = 256 * 40
+	sheet.col(1).width = 256 * 40
+
 	for key, value in sorted(values.iteritems()):
 		key_pack = key.split(key_separator)
 
-		row = int(key_pack[0])
+		row = int(key_pack[0]) + 1
 		sheet.write(row, 0, key_pack[1].decode('gbk'))
-		sheet.write(row, 1, str(value / count))
+		sheet.write(row, 1, value / float(count))
 
 	wbk.save(path)
 

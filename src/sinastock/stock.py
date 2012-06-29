@@ -6,7 +6,7 @@ import sys
 import urllib2
 from sgmllib import SGMLParser
 
-key_separator = '_'
+key_separator = '^_^'
 
 class financial_parser(SGMLParser):
 	keys = \
@@ -100,8 +100,7 @@ class financial_parser(SGMLParser):
 	def handle_data(self, data):
 		if self.a_segment == True:
 			if data in self.keys:
-				self.intercept = True				
-				
+				self.intercept = True
 				self.key = str('%3d'%(self.data_idx)) +  key_separator + data
 				self.data_idx += 1
 		elif self.td_segment == True:
