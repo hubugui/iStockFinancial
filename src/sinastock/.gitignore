@@ -33,5 +33,5 @@ nosetests.xml
 .mr.developer.cfg
 
 #html
-.html
-.htm
+*.html
+*.htm
