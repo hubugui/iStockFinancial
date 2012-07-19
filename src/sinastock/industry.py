@@ -4,14 +4,15 @@
 import os
 import sys
 import urllib2
-import time
 import json
 import re
-import xlwt
+import Queue
+import threading
 
-from stock import key_separator
-from stock import stock_pull
-from stock import stock_url
+from stock_parser import key_separator
+from stock import *
+from job import *
+from thread_url import *
 
 def write_console(values, count):
 	for key, value in sorted(values.iteritems()):
@@ -19,87 +20,67 @@ def write_console(values, count):
 
 		print key_pack[0] + "." + key_pack[1] + ":" + str(value / count)
 
-def write_excel(values, count, path):
-	wbk = xlwt.Workbook()
-	sheet = wbk.add_sheet('sheet 1', cell_overwrite_ok=True)
+def write_json(values, count, path):
+	fd = open(path, 'wb')
 
-	# head style
-	head_style = xlwt.XFStyle()
-
-	# font
-	head_font = xlwt.Font()
-	head_font.colour_index = 4
-	head_font.width = 256 * 100
-	head_font.height = 8*20
-
-	head_style.font = head_font
-
-	# alignment
-	head_alignment = xlwt.Formatting.Alignment()
-	head_alignment.horz = xlwt.Formatting.Alignment.HORZ_CENTER
-	head_alignment.vert = xlwt.Formatting.Alignment.VERT_CENTER
-
-	head_style.alignment = head_alignment
-
-	sheet.write(0, 0, 'Ãû³Æ'.decode('gbk'), head_style)
-	sheet.write(0, 1, 'ÊýÖµ'.decode('gbk'), head_style)
-
-	# col width
-	sheet.col(0).width = 256 * 40
-	sheet.col(1).width = 256 * 40
+	json_string = "{"
 
 	for key, value in sorted(values.iteritems()):
 		key_pack = key.split(key_separator)
+		json_string += "'" + key_pack[1] + "': " + str(value / count) + ","
 
-		row = int(key_pack[0]) + 1
-		sheet.write(row, 0, key_pack[1].decode('gbk'))
-		sheet.write(row, 1, value / float(count))
+	json_string += "}"
 
-	wbk.save(path)
+	print json.dumps(json_string, encoding="gbk", indent=2)
 
-def industry_pull(name, year, count):
-	count = int(count)
+	json_string = json.dumps(json_string, fp=fd, sort_keys=True, encoding="gbk", indent=2)
 
-	# url
-	url = 'http://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=1000&sort=symbol&asc=1&node=new_%s&_s_r_a=setlen'%(name)
-	print "pull: " + url
+	# fd.write(json_string);
+	fd.close()
 
-	# http
-	start = time.time()
+class industry(job):
+	INDUSTRY_URL = 'http://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=10000&sort=symbol&asc=1&node=%s&_s_r_a=auto'
 
-	req = urllib2.Request(url)
-	response = urllib2.urlopen(req)
-	json_data = response.read()
+	def __init__(self, year='2011', home='.', name='nongye', code='hangye_za01'):
+		job.__init__(self, name, self.INDUSTRY_URL%(code), self.onsuccess, self.onfailure, 'industry')
+		self.year = year
+		self.home = home
+		self.name = name
+		self.code = code
+		self.content = ''
+		self.queue = Queue.Queue()
 
-	elapsed = time.time() - start
-	print "pull elapsed: ",
-	print str(elapsed) + "s"
+	def preprocess(self, content):
+		# replace ticktime error data
+		content = re.sub(r'\d+:\d+:\d+', '', content)
 
-	# replace ticktime error data
-	json_data = re.sub(r'\d+:\d+:\d+', '', json_data)
+	 	# adjust json format
+		content = re.sub(r"{\s*(\w)", r'{"\1', content)
+		content = re.sub(r",\s*(\w)", r',"\1', content)
+		content = re.sub(r"(\w):", r'\1":', content)
 
- 	# adjust json format
-	json_data = re.sub(r"{\s*(\w)", r'{"\1', json_data)
-	json_data = re.sub(r",\s*(\w)", r',"\1', json_data)
-	json_data = re.sub(r"(\w):", r'\1":', json_data)
-	# json
-	stocks = json.loads(json_data, encoding="gbk")
-	print "total " + name + " corp number: "  + str(len(stocks))
+		return content
 
-	# stock foreach
-	values = {}
-	idx = 0
-	for stock in stocks:
-		idx += 1
-		if idx > count:
-			break
+	def onsuccess(self, content):
+		self.content = self.preprocess(content)
 
-		print "--------------------------------------------------"
-		print str(idx) + "\t" + stock["symbol"] + "\t" + stock["code"] + "\t\t" + stock["name"]
-		print stock_url(stock["code"], year)
-		print "--------------------------------------------------"
+		# json
+		stocks = json.loads(self.content, encoding="gbk")
+		print str(self.idx) + '.' + self.name + " corp number: "  + str(len(stocks))
 
-		stock_pull(stock["code"], year, values)
+		for i in range(2):
+			t = thread_url(self.queue)
+			t.setDaemon(True)
+			t.start()
 
-	write_console(values, count)
-	write_excel(values, count, "%s_%s_%s.xls"%(name, year, count))
+		values = {}
+		for stock in stocks:
+			print stock["symbol"] + "\t" + stock["code"] + "\t\t" + stock["name"]
+			# stock_pull(stock["code"], self.year, values)
+
+	def onfailure(self):
+		print self.name + '\tonfailure'
+		sys.exit(0)
+
+	def url(self):
+		return self.url
