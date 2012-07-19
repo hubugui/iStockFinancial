@@ -14,6 +14,12 @@ from stock import *
 from job import *
 from thread_url import *
 
+def write_console(values, count):
+	for key, value in sorted(values.iteritems()):
+		key_pack = key.split(key_separator)
+
+		print key_pack[0] + "." + key_pack[1] + ":" + str(value / count)
+
 def write_json(values, count, path):
 	fd = open(path, 'wb')
 
@@ -62,17 +68,15 @@ class industry(job):
 		stocks = json.loads(self.content, encoding="gbk")
 		print str(self.idx) + '.' + self.name + " corp number: "  + str(len(stocks))
 
-		for i in range(10):
+		for i in range(2):
 			t = thread_url(self.queue)
 			t.setDaemon(True)
 			t.start()
 
-		for i, element in enumerate(stocks):			
-			job = stock(self.year, element["code"], element["name"])
-			job.idx = i + 1
-			self.queue.put(job)
-
-		self.queue.join()
+		values = {}
+		for stock in stocks:
+			print stock["symbol"] + "\t" + stock["code"] + "\t\t" + stock["name"]
+			# stock_pull(stock["code"], self.year, values)
 
 	def onfailure(self):
 		print self.name + '\tonfailure'

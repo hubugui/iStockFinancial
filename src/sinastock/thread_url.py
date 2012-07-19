@@ -27,7 +27,7 @@ class thread_url(threading.Thread):
 					job.onsuccess(content)
 			except:
 				print "Unexpected error:", sys.exc_info()[1]
-				print content
+				# print content
 				job.onfailure()
 
 			self.queue.task_done()

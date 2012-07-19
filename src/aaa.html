@@ -1,0 +1,27 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Untitled Document</title>
+    <meta http-equiv="Content-Type" content="text/html"; charset="gbk" />
+    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
+
+    <script type="text/javascript" charset="gbk" src="industry_list.js"></script>
+
+    <script type="text/javascript" language="JavaScript">
+		var head = document.getElementsByTagName('head')[0];
+		var script = document.createElement('script');
+		script.type = 'text/javascript';
+		script.src = 'industry_list.js';
+    
+    	function init() {
+    		alert(tree[1][0][1][6]);
+    		
+    		// alert(script.text);
+    	}
+    </script>
+</head>
+<body onload="init()">
+	<div id="test_id" />	
+</body>
+</html>

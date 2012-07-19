@@ -119,5 +119,5 @@ class stock_parser(SGMLParser):
 					else:
 						self.values[self.key] = value
 
-					#print self.key + ":" + str(self.values[self.key])
-					print '.',
+					# print self.key + ":" + str(self.values[self.key])
+					# print '.',
