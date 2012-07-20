@@ -4,6 +4,7 @@ import os
 import sys
 import time
 import urllib2
+import urllib3
 import Queue
 import threading
 
@@ -13,14 +14,19 @@ class thread_url(threading.Thread):
 		self.queue = queue
 
 	def run(self):
+		http = urllib3.PoolManager(10)
+
 		while True:
 			content = ''
 
 			try:
 				job = self.queue.get()
-				response = urllib2.urlopen(urllib2.Request(job.url))
-				content = response.read()
-				response.close()
+				# response = urllib2.urlopen(urllib2.Request(job.url))
+				# content = response.read()
+				# response.close()
+
+				request = http.request('GET', job.url)
+				content = request.data
 
 				if content != 'null':
 					job.onsuccess(content)

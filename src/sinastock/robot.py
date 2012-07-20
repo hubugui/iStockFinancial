@@ -29,7 +29,7 @@ class robot:
 		return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
 
 	def fire(self):
-		socket.setdefaulttimeout(5)
+		socket.setdefaulttimeout(20)
 
 		# martet
 		market = market_center()
