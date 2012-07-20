@@ -18,16 +18,16 @@ class thread_url(threading.Thread):
 			try:
 				job = self.queue.get()
 
-				req = urllib2.Request(job.url)
-				response = urllib2.urlopen(req)
+				response = urllib2.urlopen(urllib2.Request(job.url))
 				content = response.read()
 				response.close()
 
 				if content != 'null':
 					job.onsuccess(content)
+
+				self.queue.task_done()
 			except:
 				print "Unexpected error:", sys.exc_info()[1]
 				# print content
 				job.onfailure()
-
-			self.queue.task_done()
+				self.queue.put(job)

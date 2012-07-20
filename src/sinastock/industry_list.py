@@ -42,8 +42,7 @@ class industry_list:
 	def pull(self):
 		print "pull industry list: " + self.INDUSTRY_LIST_URL
 
-		req = urllib2.Request(self.INDUSTRY_LIST_URL)
-		response = urllib2.urlopen(req)
+		response = urllib2.urlopen(urllib2.Request(self.INDUSTRY_LIST_URL))
 	 	self.content = self.preprocess(response.read())
 		response.close()
 

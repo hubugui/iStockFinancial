@@ -66,5 +66,5 @@ class industry(job):
 			self.queue.put(job)
 
 	def onfailure(self):
-		print self.name + '\tonfailure'
+		print self.name + '\tonfailure' + '\t' + self.url
 		sys.exit(0)

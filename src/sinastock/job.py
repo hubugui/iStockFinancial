@@ -9,6 +9,7 @@ class job():
 	idx = 1
 	name = ''
 	queue = None
+	url = ''
 
 	def __init__(self, name, url, onsuccess, onfailure, userdata):
 		self.name = name

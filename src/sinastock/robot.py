@@ -21,7 +21,7 @@ class robot:
 		self.jobs = []
 		self.queue = Queue.Queue()
 
-		for i in range(100):
+		for i in range(20):
 			t = thread_url(self.queue)
 			t.setDaemon(True)
 			t.start()

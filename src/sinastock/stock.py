@@ -22,17 +22,20 @@ class stock(job):
 
 			print key_pack[0] + "." + key_pack[1] + '=' + str(value)
 
+	def get_values(self):
+		return self.values
+
 	def onsuccess(self, content):
 		print threading.currentThread().getName() + ' stock ' + str(self.idx) + '.' + self.name
 
-		values = {}
+		self.values = {}
 
 		parser = stock_parser()
-		parser.parse(content, values)
+		parser.parse(content, self.values)
 		parser.close()
 
-		# self.write_console(values)
+		# self.write_console(self.values)
 
 	def onfailure(self):
-		print self.name + '\tonfailure'
+		print self.name + '\tonfailure' + '\t' + self.url
 		sys.exit(0)
