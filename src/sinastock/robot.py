@@ -7,72 +7,65 @@ import Queue
 import threading
 
 from industry import *
-from industry_list import *
+from market_center import *
+from stock import *
 from thread_url import *
 
-'''
-	CSRC(China Securities Regulatory Commission) Industry
-'''
-
 class robot:
+	concurrency = 50
+ 
 	def __init__(self, year='2011', home='.'):
 		self.year = year
 		self.home = home
-		self.jobs = []
 		self.queue = Queue.Queue()
 
-		for i in range(20):
+		for i in range(self.concurrency):
 			t = thread_url(self.queue)
 			t.setDaemon(True)
 			t.start()
 
-	def echo(self, msg, level):
-		for i in range(level):
-			print '    ',
-		print msg.encode('gbk')
-
 	def get_time(self, t):
 		return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
 
-	def extract(self, array, level):
-		'''	
-		if len(array[1]) == 0:
-			msg = array[0] + '-' + array[2]
-		else:
-			msg = array[0] + '-' + str(len(array[1]))
-		self.echo(msg, level)
-		'''
+	def fire(self):
+		# martet
+		market = market_center()
+		market.pull()
+		market.save_js(self.home)
 
-		for element in array[1]:
-			if isinstance(element, (list, tuple)):
-				self.extract(element, level + 1)
+		# csrc industrys
+		industrys = market.get_csrc_industrys()
+		for i, ind in enumerate(industrys):
+			ind.set_idx(i + 1)
+			ind.set_year(self.year)
+			self.queue.put(ind)
 
-				if not isinstance(element[1], (list, tuple)):
-					ind = industry(self.year, self.home, element[0], element[2])
-					self.jobs.append(ind)
-
-	def go_industry(self):
-		industrys = industry_list(self.home)
-		array = industrys.pull()
-		industrys.save()
-
-		self.extract(array[1][0][1][3], 0)
-
-		print 'industry number %d'%(len(self.jobs))
-
-		for i, job in enumerate(self.jobs):
-			job.set_idx(i + 1)
-			job.set_queue(self.queue)
-			self.queue.put(job)
+		print '%s> waiting for pull csrc industry, number=%d'%(self.get_time(time.time()), len(industrys))
 
 		self.queue.join()
 
+		print ''		
+		print '%s> pull over'%(self.get_time(time.time()))
+
+		# stocks
+		idx = 1
+		for i, ind in enumerate(industrys):
+			print '%03d.%s, %d'%(i + 1, ind.name, len(ind.stocks))
+
+			for j, stock in enumerate(ind.stocks):
+				stock.set_idx(idx)
+				idx += 1
+
+				self.queue.put(stock)
+
+			self.queue.join()
+ 
 	def go(self):
 		go_t = time.time()
-		print 'go, %s'%(self.get_time(go_t))
+		print '%s> robot go'%(self.get_time(go_t))
 
-		self.go_industry()
+		self.fire()
 
 		bye_t = time.time()
-		print 'byebye, %s'%(self.get_time(bye_t))
+		print '%s> byebye'%(self.get_time(bye_t))
 		print 'elapsed time %ds'%(bye_t - go_t)

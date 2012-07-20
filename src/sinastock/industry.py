@@ -12,7 +12,6 @@ import threading
 from stock_parser import key_separator
 from stock import *
 from job import *
-from thread_url import *
 
 def write_json(values, count, path):
 	fd = open(path, 'wb')
@@ -35,12 +34,11 @@ def write_json(values, count, path):
 class industry(job):
 	INDUSTRY_URL = 'http://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=10000&sort=symbol&asc=1&node=%s&_s_r_a=auto'
 
-	def __init__(self, year='2011', home='.', name='nongye', code='hangye_za01'):
+	def __init__(self, name='nongye', code='hangye_za01'):
 		job.__init__(self, name, self.INDUSTRY_URL%(code), self.onsuccess, self.onfailure, 'industry')
-		self.year = year
-		self.home = home
 		self.code = code
 		self.content = ''
+		self.stocks = []
 
 	def preprocess(self, content):
 		# replace ticktime error
@@ -57,14 +55,13 @@ class industry(job):
 		self.content = self.preprocess(content)
 
 		stocks = json.loads(self.content, encoding="gbk")
-		print threading.currentThread().getName() + ' industry ' + str(self.idx) + '.' + self.name + " corp number: "  + str(len(stocks))
+		print '.',
 
 		for i, element in enumerate(stocks):
-			job = stock(self.year, element["code"], element["name"])
-			job.set_idx(i + 1)
-			job.set_queue(self.queue)			
-			self.queue.put(job)
+			job = stock(self.get_year(), element["code"], element["name"])
+			self.stocks.append(job)			
 
 	def onfailure(self):
+		print ''
 		print self.name + '\tonfailure' + '\t' + self.url
 		sys.exit(0)

@@ -8,8 +8,8 @@ from sgmllib import SGMLParser
 class job():
 	idx = 1
 	name = ''
-	queue = None
 	url = ''
+	year = 2011
 
 	def __init__(self, name, url, onsuccess, onfailure, userdata):
 		self.name = name
@@ -21,11 +21,14 @@ class job():
 	def set_idx(self, idx):
 		self.idx = idx
 
-	def set_queue(self, queue):
-		self.queue = queue
+	def get_idx(self):
+		return self.idx
 
-	def get_queue(self):
-		return self.queue
+	def set_year(self, year):
+		self.year = year
+
+	def get_year(self):
+		return self.year
 
 	def onsuccess(self, content):
 		return None
