@@ -3,6 +3,8 @@
 
 import os
 import sys
+import threading
+
 from job import *
 from stock_parser import *
 
@@ -13,17 +15,15 @@ class stock(job):
 		job.__init__(self, name, self.STOCK_URL%(code, year), self.onsuccess, self.onfailure, 'stock')
 		self.year = year
 		self.code = code
-		self.name = name
 
 	def write_console(self, values):
 		for key, value in sorted(values.iteritems()):
 			key_pack = key.split(key_separator)
 
-			# print key_pack[0].encode + "." + key_pack[1]
-			print key_pack
+			print key_pack[0] + "." + key_pack[1] + '=' + str(value)
 
-	def onsuccess(self, content):		
-		print str(self.idx) + '.' + self.name
+	def onsuccess(self, content):
+		print threading.currentThread().getName() + ' stock ' + str(self.idx) + '.' + self.name
 
 		values = {}
 

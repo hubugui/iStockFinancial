@@ -39,13 +39,11 @@ class industry(job):
 		job.__init__(self, name, self.INDUSTRY_URL%(code), self.onsuccess, self.onfailure, 'industry')
 		self.year = year
 		self.home = home
-		self.name = name
 		self.code = code
 		self.content = ''
-		self.queue = Queue.Queue()
 
 	def preprocess(self, content):
-		# replace ticktime error data
+		# replace ticktime error
 		content = re.sub(r'\d+:\d+:\d+', '', content)
 
 	 	# adjust json format
@@ -58,25 +56,15 @@ class industry(job):
 	def onsuccess(self, content):
 		self.content = self.preprocess(content)
 
-		# json
 		stocks = json.loads(self.content, encoding="gbk")
-		print str(self.idx) + '.' + self.name + " corp number: "  + str(len(stocks))
+		print threading.currentThread().getName() + ' industry ' + str(self.idx) + '.' + self.name + " corp number: "  + str(len(stocks))
 
-		for i in range(10):
-			t = thread_url(self.queue)
-			t.setDaemon(True)
-			t.start()
-
-		for i, element in enumerate(stocks):			
+		for i, element in enumerate(stocks):
 			job = stock(self.year, element["code"], element["name"])
-			job.idx = i + 1
+			job.set_idx(i + 1)
+			job.set_queue(self.queue)			
 			self.queue.put(job)
-
-		self.queue.join()
 
 	def onfailure(self):
 		print self.name + '\tonfailure'
 		sys.exit(0)
-
-	def url(self):
-		return self.url

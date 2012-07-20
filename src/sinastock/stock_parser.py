@@ -74,7 +74,7 @@ class stock_parser(SGMLParser):
 	td_segment = False
 	a_segment = False
 	intercept = False
-	data_idx = 0
+	data_idx = 1
 
 	def reset(self):
 		self.urls=[]

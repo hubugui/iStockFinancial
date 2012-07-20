@@ -20,20 +20,21 @@ class industry_list:
 		fd.close()
 
 	def preprocess(self, content):
-	 	# adjust json format
+		# adjust js array to json
+
 		content = re.sub(r"{\s*(\w)", r'{"\1', content)
 		content = re.sub(r",\s*(\w)", r',"\1', content)
 		content = re.sub(r"(\w):", r'\1":', content)
-	 	# adjust json for "{node: \'sh_z\'}"
+	 	# "{node: \'sh_z\'}"
 		content = re.sub(r"\"{", r"{", content)
 		content = re.sub(r"}\"", r"}", content)
 		content = re.sub(r"\\'", r'"', content)
-	 	# adjust json for ["<font color="red">条件选股<\/font>","http":\/\/screener.finance.sina.com.cn\/index.html?f=hqcenter","hsgs_tjxg","",{"linktype":\"_blank\"}]
+	 	# ["<font color="red">条件选股<\/font>","http":\/\/screener.finance.sina.com.cn\/index.html?f=hqcenter","hsgs_tjxg","",{"linktype":\"_blank\"}]
 		content = re.sub(r'"red"', r'red', content)
 		content = re.sub(r'<\\/font>', r'', content)
 		content = re.sub(r'http"', r'', content)	
 		content = re.sub(r'\\"', r'"', content)
-		# adjust json for ["板块汇总行情","frames\/sl_bk.html","bkhq","null,{"linktype":"iframe"}]
+		# ["板块汇总行情","frames\/sl_bk.html","bkhq","null,{"linktype":"iframe"}]
 		content = re.sub(r'"null,', r'"null",', content)
 
 		return content

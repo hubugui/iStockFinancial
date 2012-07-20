@@ -21,7 +21,7 @@ class robot:
 		self.jobs = []
 		self.queue = Queue.Queue()
 
-		for i in range(1):
+		for i in range(100):
 			t = thread_url(self.queue)
 			t.setDaemon(True)
 			t.start()
@@ -30,6 +30,9 @@ class robot:
 		for i in range(level):
 			print '    ',
 		print msg.encode('gbk')
+
+	def get_time(self, t):
+		return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
 
 	def extract(self, array, level):
 		'''	
@@ -48,13 +51,7 @@ class robot:
 					ind = industry(self.year, self.home, element[0], element[2])
 					self.jobs.append(ind)
 
-	def get_time(self, t):
-		return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
-
-	def go(self):
-		go_t = time.time()
-		print 'go, %s'%(self.get_time(go_t))
-
+	def go_industry(self):
 		industrys = industry_list(self.home)
 		array = industrys.pull()
 		industrys.save()
@@ -64,10 +61,17 @@ class robot:
 		print 'industry number %d'%(len(self.jobs))
 
 		for i, job in enumerate(self.jobs):
-			job.idx = i + 1
+			job.set_idx(i + 1)
+			job.set_queue(self.queue)
 			self.queue.put(job)
 
 		self.queue.join()
+
+	def go(self):
+		go_t = time.time()
+		print 'go, %s'%(self.get_time(go_t))
+
+		self.go_industry()
 
 		bye_t = time.time()
 		print 'byebye, %s'%(self.get_time(bye_t))
