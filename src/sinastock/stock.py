@@ -15,7 +15,7 @@ class stock(job):
 		job.__init__(self, name, self.STOCK_URL%(code, year), self.onsuccess, self.onfailure, 'stock')
 		job.year = year
 		self.code = code
-		
+
 	def write_console(self, values):
 		for key, value in sorted(values.iteritems()):
 			key_pack = key.split(key_separator)
@@ -37,6 +37,5 @@ class stock(job):
 		# self.write_console(self.values)
 
 	def onfailure(self):
-		print ''	
-		print self.name + '\tonfailure' + '\t' + self.url
-		sys.exit(0)
+		print ''
+		print 'stock %03d.%s, occur failure %s'%(self.idx, self.name, self.url)

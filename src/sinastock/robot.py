@@ -5,6 +5,7 @@ import sys
 import time
 import Queue
 import threading
+import socket
 
 from industry import *
 from market_center import *
@@ -12,7 +13,7 @@ from stock import *
 from thread_url import *
 
 class robot:
-	concurrency = 50
+	concurrency = 20
  
 	def __init__(self, year='2011', home='.'):
 		self.year = year
@@ -28,6 +29,8 @@ class robot:
 		return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
 
 	def fire(self):
+		socket.setdefaulttimeout(20)
+
 		# martet
 		market = market_center()
 		market.pull()
