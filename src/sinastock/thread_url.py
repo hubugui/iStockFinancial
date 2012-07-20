@@ -2,6 +2,7 @@
 
 import os
 import sys
+import time
 import urllib2
 import Queue
 import threading
@@ -17,7 +18,6 @@ class thread_url(threading.Thread):
 
 			try:
 				job = self.queue.get()
-
 				response = urllib2.urlopen(urllib2.Request(job.url))
 				content = response.read()
 				response.close()
@@ -26,8 +26,8 @@ class thread_url(threading.Thread):
 					job.onsuccess(content)
 
 				self.queue.task_done()
-			except:
-				print "Unexpected error:", sys.exc_info()[1]
-				# print content
+			except Exception, err:
+				print err
+
 				job.onfailure()
 				self.queue.put(job)

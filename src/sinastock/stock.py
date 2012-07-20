@@ -26,7 +26,7 @@ class stock(job):
 		return self.values
 
 	def onsuccess(self, content):
-		print 'stock %03d.%s'%(self.idx, self.name)
+		print '%03d. %s %s'%(self.idx, self.code, self.name)
 
 		self.values = {}
 
@@ -38,4 +38,4 @@ class stock(job):
 
 	def onfailure(self):
 		print ''
-		print 'stock %03d.%s, occur failure %s'%(self.idx, self.name, self.url)
+		print 'stock %03d.%s, failure %s'%(self.idx, self.name, self.url)

@@ -63,4 +63,4 @@ class industry(job):
 
 	def onfailure(self):
 		print ''
-		print 'industry %03d.%s, occur failure %s'%(self.idx, self.name, self.url)
+		print 'industry %03d.%s, failure %s'%(self.idx, self.name, self.url)

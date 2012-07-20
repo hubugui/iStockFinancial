@@ -13,12 +13,12 @@ from stock import *
 from thread_url import *
 
 class robot:
-	concurrency = 20
+	concurrency = 10
  
 	def __init__(self, year='2011', home='.'):
 		self.year = year
 		self.home = home
-		self.queue = Queue.Queue()
+		self.queue = Queue.Queue(1000)
 
 		for i in range(self.concurrency):
 			t = thread_url(self.queue)
@@ -29,7 +29,7 @@ class robot:
 		return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
 
 	def fire(self):
-		socket.setdefaulttimeout(20)
+		socket.setdefaulttimeout(5)
 
 		# martet
 		market = market_center()
@@ -62,7 +62,7 @@ class robot:
 				self.queue.put(stock)
 
 			self.queue.join()
- 
+
 	def go(self):
 		go_t = time.time()
 		print '%s> robot go'%(self.get_time(go_t))
