@@ -1,0 +1,47 @@
+﻿<!DOCTYPE html>
+
+<html>
+<head>
+    <title>Untitled Document</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
+    <script type="text/javascript" src="2011/hangye_ZA01.js"></script>
+
+    <script type="text/javascript" language="JavaScript">
+    	function init(idx) {
+    		document.getElementById("symbol").innerHTML = hangye_ZA01.stocks[idx].symbol;
+    		document.getElementById("name").innerHTML = hangye_ZA01.stocks[idx].name;
+    		document.getElementById("price").innerHTML = hangye_ZA01.stocks[idx].financial[0];
+
+			alert(hangye_ZA01.stocks[idx].financial.length)
+    		for(var t = 0; t < hangye_ZA01.stocks[idx].financial.length; t++)
+    		{
+    			alert(hangye_ZA01.stocks[idx].financial[t])
+    		}
+    	}
+	</script>
+
+</head>
+<body scroll="no" onload='init(0)'>
+    <div id="outerContainer">
+        <div id="leftPanel">
+            <div id="interfaceControlFrame">
+                <div id="interfaceControlFrameMinimizeContainer">
+                    <a title="Collapse Controls" id="interfaceControlFrameMinimizeButton" onclick="collapse();">&nbsp;</a>
+                </div>
+                <div id="interfaceControlFrameLogoContainer">
+                    <div id="interfaceControlFrameLogoImageContainer"></div>
+                    <div id="interfaceControlFrameLogoCaptionContainer"></div>
+                </div>
+                <div id="stock_content">
+	                <div id="stock">
+	                    <ul id="symbol"></ul>
+	                    <ul id="name"></ul>
+	                    <ul id="price"></ul>
+	                </div>
+                </div>
+            </div>
+        </div>        
+    </div>
+</body>
+</html>

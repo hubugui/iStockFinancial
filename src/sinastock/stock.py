@@ -11,16 +11,11 @@ from stock_parser import *
 class stock(job):
 	STOCK_URL = 'http://money.finance.sina.com.cn/corp/go.php/vFD_FinancialGuideLine/stockid/%s/ctrl/%s/displaytype/4.phtml'
 
-	def __init__(self, year, code='600489', name='中金黄金'):
+	def __init__(self, year, symbol='sz600489', code='600489', name='中金黄金'):
 		job.__init__(self, name, self.STOCK_URL%(code, year), self.onsuccess, self.onfailure, 'stock')
 		job.year = year
+		self.symbol = symbol
 		self.code = code
-
-	def write_console(self, values):
-		for key, value in sorted(values.iteritems()):
-			key_pack = key.split(key_separator)
-
-			print key_pack[0] + "." + key_pack[1] + '=' + str(value)
 
 	def get_values(self):
 		return self.values

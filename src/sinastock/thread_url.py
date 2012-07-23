@@ -16,8 +16,12 @@ class thread_url(threading.Thread):
 		while True:
 			content = ''
 
+			job = None
+
 			try:
+				# print '%s bef'%(threading.currentThread().getName())
 				job = self.queue.get()
+
 				response = urllib2.urlopen(urllib2.Request(job.url))
 				content = response.read()
 				response.close()
@@ -26,8 +30,10 @@ class thread_url(threading.Thread):
 					job.onsuccess(content)
 
 				self.queue.task_done()
+			except Queue.Empty, err:
+				print 'err %s'%(err)
 			except Exception, err:
-				print err
-
+				# print '%s err %s'%(threading.currentThread().getName(), err)
+				print 'err %s'%(err)
 				job.onfailure()
 				self.queue.put(job)

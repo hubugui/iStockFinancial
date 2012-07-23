@@ -3,33 +3,13 @@
 
 import os
 import sys
-import urllib2
 import json
 import re
 import Queue
 import threading
 
-from stock_parser import key_separator
 from stock import *
 from job import *
-
-def write_json(values, count, path):
-	fd = open(path, 'wb')
-
-	json_string = "{"
-
-	for key, value in sorted(values.iteritems()):
-		key_pack = key.split(key_separator)
-		json_string += "'" + key_pack[1] + "': " + str(value / count) + ","
-
-	json_string += "}"
-
-	print json.dumps(json_string, encoding="gbk", indent=2)
-
-	json_string = json.dumps(json_string, fp=fd, sort_keys=True, encoding="gbk", indent=2)
-
-	# fd.write(json_string);
-	fd.close()
 
 class industry(job):
 	INDUSTRY_URL = 'http://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=10000&sort=symbol&asc=1&node=%s&_s_r_a=auto'
@@ -58,9 +38,45 @@ class industry(job):
 		print '.',
 
 		for i, element in enumerate(stocks):
-			job = stock(self.get_year(), element["code"], element["name"])
-			self.stocks.append(job)			
+			job = stock(self.get_year(), element["symbol"], element["code"], element["name"])
+			self.stocks.append(job)
 
 	def onfailure(self):
 		print ''
 		print 'industry %03d.%s, failure %s'%(self.idx, self.name, self.url)
+
+	def get_fs(self, home='.'):
+		dir = '%s/%s'%(home, self.get_year())
+		if not os.path.exists(dir):
+			os.mkdir(dir)
+		path = '%s/%s.js'%(dir, self.code)
+
+		return dir, path
+
+	def save(self, home='.'):
+		dir, path = self.get_fs(home)
+		if not os.path.exists(dir):
+			os.mkdir(dir)
+
+		fd = open(path, 'wb')
+
+		json_string = u"var %s = {'code':'%s', 'name':'%s', 'stocks':["%(self.code, self.code, self.name)
+
+		for i, stock in enumerate(self.stocks):
+			json_string += "{'symbol':'%s', 'name':'%s', 'financial':["%(stock.symbol, stock.name)
+
+			for key, value in sorted(stock.get_values().iteritems()):
+				key_pack = key.split(key_separator)
+
+				json_string += "'" + str(value) + "',"
+
+			json_string += ']}, '
+
+		json_string += "]}"
+
+		fd.write(json_string.encode('utf-8'))
+		fd.close()
+
+	def exist(self, home='.'):
+		dir, path = self.get_fs(home)
+		return os.path.isfile(path)
