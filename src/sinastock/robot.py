@@ -15,7 +15,7 @@ from thread_url import *
 
 class robot:
 	concurrency = 20
- 
+
 	def __init__(self, year='2011', home='.'):
 		self.year = year
 		self.home = home
