@@ -32,11 +32,9 @@ class crawler():
 
 	def io_run(self):
 		while True:
-			job = None
+			job = self.io_queue.get()
 
 			try:
-				job = self.io_queue.get()
-
 				response = urllib2.urlopen(urllib2.Request(job.get_url()))
 				job.set_content(response.read())
 				response.close()
@@ -52,24 +50,22 @@ class crawler():
 
 	def parser_run(self):
 		while True:
-			job = None
+			job = self.parser_queue.get()
 
-			try:
-				job = self.parser_queue.get()
+			if job.finish == True:
+				job.onsuccess()
+			else:
+				self.io_queue.put(job)
 
-				if job.finish == True:
-					job.onsuccess()
-				else:
-					self.io_queue.put(job)
-
-				self.parser_queue.task_done()
-			except Exception, err:
-				print ''
-				print 'parser_thread> err %s'%(err)
+			self.parser_queue.task_done()
 
 	def put(self, job):
 		self.io_queue.put(job)
 
 	def join(self):
-		self.io_queue.join()
-		self.parser_queue.join()
+		while True:
+			self.io_queue.join()
+			self.parser_queue.join()
+
+			if self.io_queue.qsize() == 0 and self.parser_queue.qsize() == 0:
+				break			

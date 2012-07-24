@@ -74,7 +74,7 @@ class industry(job):
 
 				json_string += ']}, '
 			else:
-				print 'fatal error, stock did not complete'
+				print 'fatal error, %s is not finish'%(stock.name)
 				sys.exit(0)
 
 		json_string += "]}"

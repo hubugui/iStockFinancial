@@ -53,7 +53,7 @@ class robot:
 
 		self.crawler.join()
 
-		print ''		
+		print ''
 		print '%s> over'%(self.get_time(time.time()))
 
 		# stocks
@@ -74,11 +74,10 @@ class robot:
 
 	def go(self):
 		go_t = time.time()
-		print '%s> robot go'%(self.get_time(go_t))
+		print '%s> go'%(self.get_time(go_t))
 
 		socket.setdefaulttimeout(20)
 		self.fire()
 
 		bye_t = time.time()
-		print '%s> byebye'%(self.get_time(bye_t))
-		print 'elapsed time %ds'%(bye_t - go_t)
+		print '%s> byebye, elapsed time %ds'%(self.get_time(bye_t), bye_t - go_t)
