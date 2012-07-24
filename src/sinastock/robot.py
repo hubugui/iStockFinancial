@@ -76,7 +76,6 @@ class robot:
 		go_t = time.time()
 		print '%s> go'%(self.get_time(go_t))
 
-		socket.setdefaulttimeout(20)
 		self.fire()
 
 		bye_t = time.time()

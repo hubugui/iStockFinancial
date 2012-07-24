@@ -2,8 +2,10 @@
 
 import os
 import sys
+import socket
 import time
 import urllib2
+import urllib3
 import Queue
 import threading
 
@@ -16,7 +18,6 @@ class crawler():
 		self.max_io = max_io
 		self.max_parser = max_parser
 		self.request_rate = request_rate
-
 		self.io_queue = Queue.Queue(100)
 		self.parser_queue = Queue.Queue(100)
 
@@ -30,15 +31,26 @@ class crawler():
 			t.setDaemon(True)
 			t.start()
 
+		socket.setdefaulttimeout(20)
+		ip = socket.gethostbyname(socket.gethostname())
+		if ip.startswith('137.'):
+			self.http_pool = HTTPConnectionPool('10.77.8.70:8080', maxsize = max_io)
+		else:
+			self.http_pool = HTTPConnectionPool('vip.stock.finance.sina.com.cn', maxsize = max_io)
+
 	def io_run(self):
 		while True:
 			job = self.io_queue.get()
 
 			try:
+				'''
 				response = urllib2.urlopen(urllib2.Request(job.get_url()))
 				job.set_content(response.read())
 				response.close()
+				'''
 
+				response = self.http_pool.urlopen('GET', job.get_url(), assert_same_host=False)
+				job.set_content(response.data)
 				job.finish = True
 			except Exception, err:
 				print ''
