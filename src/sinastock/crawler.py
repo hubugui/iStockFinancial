@@ -9,6 +9,8 @@ import threading
 
 from crawler_thread import *
 
+from urllib3 import HTTPConnectionPool
+
 class crawler():
 	def __init__(self, max_io = 10, max_parser = 2, request_rate = 500):
 		self.max_io = max_io
@@ -36,9 +38,18 @@ class crawler():
 				# print '%s bef'%(threading.currentThread().getName())
 				job = self.io_queue.get()
 
+				'''
 				response = urllib2.urlopen(urllib2.Request(job.get_url()))
 				job.set_content(response.read())
 				response.close()
+				'''
+
+				# Create a connection pool for a specific host
+				http_pool = HTTPConnectionPool('google.com')
+
+				# GET
+				r = http_pool.urlopen('GET', '/', redirect=True)
+				print r.status, len(r.data), r.headers.get('location')
 
 				job.finish = True
 			except Exception, err:

@@ -4,6 +4,7 @@
 import os
 import json
 import re
+import sys
 
 from stock import *
 from job import *
@@ -74,7 +75,7 @@ class industry(job):
 				json_string += ']}, '
 			else:
 				print 'fatal error'
-				os.exit(0)
+				sys.exit(0)
 
 		json_string += "]}"
 
