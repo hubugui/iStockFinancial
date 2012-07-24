@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 #coding:gbk
 
-import os
-import sys
-import urllib2
 from sgmllib import SGMLParser
 
 key_separator = '^_^'

@@ -2,11 +2,8 @@
 #coding:gbk
 
 import os
-import sys
 import json
 import re
-import Queue
-import threading
 
 from stock import *
 from job import *
@@ -31,21 +28,24 @@ class industry(job):
 
 		return content
 
-	def onsuccess(self, content):
-		self.content = self.preprocess(content)
+	def onsuccess(self):
+		if self.content == 'null':
+			print '^',
+		else:
+			self.content = self.preprocess(self.content)
 
-		stocks = json.loads(self.content, encoding="gbk")
-		print '.',
+			stocks = json.loads(self.content, encoding="gbk")
+			print '.',
 
-		for i, element in enumerate(stocks):
-			job = stock(self.get_year(), element["symbol"], element["code"], element["name"])
-			self.stocks.append(job)
+			for i, element in enumerate(stocks):
+				job = stock(self.get_year(), element["symbol"], element["code"], element["name"])
+				self.stocks.append(job)
 
 	def onfailure(self):
 		print ''
-		print 'industry %03d.%s, failure %s'%(self.idx, self.name, self.url)
+		print '%03d. %s %s, failure'%(self.idx, self.code, self.name)
 
-	def get_fs(self, home='.'):
+	def fs(self, home='.'):
 		dir = '%s/%s'%(home, self.get_year())
 		if not os.path.exists(dir):
 			os.mkdir(dir)
@@ -54,7 +54,7 @@ class industry(job):
 		return dir, path
 
 	def save(self, home='.'):
-		dir, path = self.get_fs(home)
+		dir, path = self.fs(home)
 		if not os.path.exists(dir):
 			os.mkdir(dir)
 
@@ -63,14 +63,18 @@ class industry(job):
 		json_string = u"var %s = {'code':'%s', 'name':'%s', 'stocks':["%(self.code, self.code, self.name)
 
 		for i, stock in enumerate(self.stocks):
-			json_string += "{'symbol':'%s', 'name':'%s', 'financial':["%(stock.symbol, stock.name)
+			if stock.finish == True:
+				json_string += "{'symbol':'%s', 'name':'%s', 'financial':["%(stock.symbol, stock.name)
 
-			for key, value in sorted(stock.get_values().iteritems()):
-				key_pack = key.split(key_separator)
+				for key, value in sorted(stock.get_values().iteritems()):
+					key_pack = key.split(key_separator)
 
-				json_string += "'" + str(value) + "',"
+					json_string += "'" + str(value) + "',"
 
-			json_string += ']}, '
+				json_string += ']}, '
+			else:
+				print 'fatal error'
+				os.exit(0)
 
 		json_string += "]}"
 
@@ -78,5 +82,13 @@ class industry(job):
 		fd.close()
 
 	def exist(self, home='.'):
-		dir, path = self.get_fs(home)
-		return os.path.isfile(path)
+		dir, path = self.fs(home)
+
+		if os.path.isfile(path):
+			statinfo = os.stat(path)
+			if statinfo.st_size > 0:
+				return True
+			else:
+				return False
+		else:
+			return False

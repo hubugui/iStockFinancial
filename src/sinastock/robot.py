@@ -11,20 +11,13 @@ from industry import *
 from market_center import *
 from stock import *
 from stock_parser import *
-from thread_url import *
+from crawler import *
 
 class robot:
-	concurrency = 20
-
 	def __init__(self, year='2011', home='.'):
 		self.year = year
 		self.home = home
-		self.queue = Queue.Queue(100)
-
-		for i in range(self.concurrency):
-			t = thread_url(self.queue)
-			t.setDaemon(True)
-			t.start()
+		self.crawler = crawler(20, 2, 500)
 
 	def get_time(self, t):
 		return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
@@ -54,11 +47,11 @@ class robot:
 		for i, ind in enumerate(industrys):
 			ind.set_idx(i + 1)
 			ind.set_year(self.year)
-			self.queue.put(ind)
+			self.crawler.put(ind)
 
 		print '%s> waiting for pull csrc industry, number=%d'%(self.get_time(time.time()), len(industrys))
 
-		self.queue.join()
+		self.crawler.join()
 
 		print ''		
 		print '%s> over'%(self.get_time(time.time()))
@@ -75,12 +68,10 @@ class robot:
 					stock.set_idx(idx)
 					idx += 1
 
-					self.queue.put(stock)
-
-				self.queue.join()
+					self.crawler.put(stock)
+				self.crawler.join()
 
 				ind.save(self.home)
-			break
 
 	def go(self):
 		go_t = time.time()

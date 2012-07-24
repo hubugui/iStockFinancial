@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 #coding:gbk
 
-import os
-import sys
-import threading
-
 from job import *
 from stock_parser import *
 
@@ -20,17 +16,15 @@ class stock(job):
 	def get_values(self):
 		return self.values
 
-	def onsuccess(self, content):
+	def onsuccess(self):
 		print '%03d. %s %s'%(self.idx, self.code, self.name)
 
 		self.values = {}
 
 		parser = stock_parser()
-		parser.parse(content, self.values)
+		parser.parse(self.content, self.values)
 		parser.close()
-
-		# self.write_console(self.values)
 
 	def onfailure(self):
 		print ''
-		print 'stock %03d.%s, failure %s'%(self.idx, self.name, self.url)
+		print '%03d. %s %s, failure'%(self.idx, self.code, self.name)

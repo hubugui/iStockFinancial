@@ -10,6 +10,8 @@ class job():
 	name = ''
 	url = ''
 	year = 2011
+	content = ''
+	finish = False
 
 	def __init__(self, name, url, onsuccess, onfailure, userdata):
 		self.name = name
@@ -30,7 +32,16 @@ class job():
 	def get_year(self):
 		return self.year
 
-	def onsuccess(self, content):
+	def get_url(self):
+		return self.url
+
+	def set_content(self, content):
+		self.content = content
+
+	def get_content(self):
+		return self.content
+
+	def onsuccess(self):	
 		return None
 
 	def onfailure(self, content):
