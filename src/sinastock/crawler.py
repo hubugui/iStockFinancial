@@ -35,21 +35,11 @@ class crawler():
 			job = None
 
 			try:
-				# print '%s bef'%(threading.currentThread().getName())
 				job = self.io_queue.get()
 
-				'''
 				response = urllib2.urlopen(urllib2.Request(job.get_url()))
 				job.set_content(response.read())
 				response.close()
-				'''
-
-				# Create a connection pool for a specific host
-				http_pool = HTTPConnectionPool('google.com')
-
-				# GET
-				r = http_pool.urlopen('GET', '/', redirect=True)
-				print r.status, len(r.data), r.headers.get('location')
 
 				job.finish = True
 			except Exception, err:

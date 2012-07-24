@@ -57,17 +57,16 @@ class robot:
 		print '%s> over'%(self.get_time(time.time()))
 
 		# stocks
-		idx = 1
+		idx = 0
 		for i, ind in enumerate(industrys):
 			if ind.exist(self.home):
 				print '%03d.%s, %d->already exist'%(i + 1, ind.name, len(ind.stocks))
 			else:
 				print '%03d.%s, %d'%(i + 1, ind.name, len(ind.stocks))
 
-				for j, stock in enumerate(ind.stocks):
-					stock.set_idx(idx)
+				for stock in ind.stocks:
 					idx += 1
-
+					stock.set_idx(idx)
 					self.crawler.put(stock)
 				self.crawler.join()
 
