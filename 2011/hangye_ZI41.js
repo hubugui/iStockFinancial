@@ -1,0 +1,1 @@
+var hangye_ZI41 = {'code':'hangye_ZI41', 'name':'基金业', 'stocks':[]}
