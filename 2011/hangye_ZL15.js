@@ -1,1 +1,0 @@
-var hangye_ZL15 = {'code':'hangye_ZL15', 'name':'艺术业', 'stocks':[]}
