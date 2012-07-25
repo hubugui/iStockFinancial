@@ -14,7 +14,7 @@ from crawler_thread import *
 from urllib3 import HTTPConnectionPool
 
 class crawler():
-	def __init__(self, max_io = 10, max_parser = 2, request_rate = 500):
+	def __init__(self, max_io = 10, max_parser = 2, request_rate = 500, proxy = ''):
 		self.max_io = max_io
 		self.max_parser = max_parser
 		self.request_rate = request_rate
@@ -38,6 +38,8 @@ class crawler():
 		else:
 			self.http_pool = HTTPConnectionPool('vip.stock.finance.sina.com.cn', maxsize = max_io)
 
+		self.manager = PoolManager()
+
 	def io_run(self):
 		while True:
 			job = self.io_queue.get()
@@ -49,7 +51,8 @@ class crawler():
 				response.close()
 				'''
 
-				response = self.http_pool.urlopen('GET', job.get_url(), assert_same_host=False)
+				response = self.manager.urlopen(job.get_url())
+				# response = self.http_pool.urlopen('GET', job.get_url(), assert_same_host=False)
 				job.set_content(response.data)
 				job.finish = True
 			except Exception, err:
