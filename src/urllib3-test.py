@@ -47,6 +47,11 @@ def urllib3_pull():
 		print len(r.data)
 	print ''
 
+def urllib3_pool_pull():
+	http = urllib3.PoolManager()
+	r = http.request('GET', 'http://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=10000&sort=symbol&asc=1&node=hangye_ZA01&_s_r_a=auto')
+	print r.status, r.data
+
 def main(argv):
 	begin = time.time()
 
@@ -57,7 +62,8 @@ def main(argv):
 
 	begin = time.time()
 
-	urllib3_pull()
+	#urllib3_pull()
+	urllib3_pool_pull()
 
 	end = time.time()
 	print 'urllib3> elapsed time %ds'%(end - begin)

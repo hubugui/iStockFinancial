@@ -17,7 +17,7 @@ class robot:
 	def __init__(self, year='2011', home='.'):
 		self.year = year
 		self.home = home
-		self.crawler = crawler(20, 2, 500)
+		self.crawler = crawler(10, 2, 500)
 
 	def get_time(self, t):
 		return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
@@ -71,6 +71,9 @@ class robot:
 				self.crawler.join()
 
 				ind.save(self.home)
+				
+				if i > 8:
+					break
 
 	def go(self):
 		go_t = time.time()
@@ -80,3 +83,4 @@ class robot:
 
 		bye_t = time.time()
 		print '%s> byebye, elapsed time %ds'%(self.get_time(bye_t), bye_t - go_t)
+		print 'total_io_elapsed=%ds'%(self.crawler.total_io_elapsed)

@@ -11,8 +11,6 @@ import threading
 
 from crawler_thread import *
 
-from urllib3 import HTTPConnectionPool
-
 class crawler():
 	def __init__(self, max_io = 10, max_parser = 2, request_rate = 500, proxy = ''):
 		self.max_io = max_io
@@ -32,28 +30,36 @@ class crawler():
 			t.start()
 
 		socket.setdefaulttimeout(20)
-		ip = socket.gethostbyname(socket.gethostname())
-		if ip.startswith('137.'):
-			self.http_pool = HTTPConnectionPool('10.77.8.70:8080', maxsize = max_io)
-		else:
-			self.http_pool = HTTPConnectionPool('vip.stock.finance.sina.com.cn', maxsize = max_io)
+		#ip = socket.gethostbyname(socket.gethostname())
+		#if ip.startswith('137.'):
+		#	self.http_pool = HTTPConnectionPool('10.77.8.70:8080', maxsize = max_io)
+		#else:
+		#	self.http_pool = HTTPConnectionPool('vip.stock.finance.sina.com.cn', maxsize = max_io)
 
-		self.manager = PoolManager()
+		self.http = urllib3.PoolManager(maxsize = max_io)
+
+	total_io_elapsed = 0
 
 	def io_run(self):
 		while True:
 			job = self.io_queue.get()
 
 			try:
-				'''
-				response = urllib2.urlopen(urllib2.Request(job.get_url()))
+
+				beg = time.time()
+			
+				response = urllib2.urlopen(urllib2.Request(job.host + job.get_url()))
 				job.set_content(response.read())
 				response.close()
+
+				self.total_io_elapsed += time.time() - beg		
+				
 				'''
 
-				response = self.manager.urlopen(job.get_url())
-				# response = self.http_pool.urlopen('GET', job.get_url(), assert_same_host=False)
+				url_pools = self.http.connection_from_url(job.host)
+				response = url_pools.urlopen('GET', job.get_url(), redirect=True)
 				job.set_content(response.data)
+'''				
 				job.finish = True
 			except Exception, err:
 				print ''

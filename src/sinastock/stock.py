@@ -5,10 +5,11 @@ from job import *
 from stock_parser import *
 
 class stock(job):
-	STOCK_URL = 'http://money.finance.sina.com.cn/corp/go.php/vFD_FinancialGuideLine/stockid/%s/ctrl/%s/displaytype/4.phtml'
+	STOCK_HOST = 'http://money.finance.sina.com.cn'
+	STOCK_URL = '/corp/go.php/vFD_FinancialGuideLine/stockid/%s/ctrl/%s/displaytype/4.phtml'
 
 	def __init__(self, year, symbol='sz600489', code='600489', name='ÖÐ½ð»Æ½ð'):
-		job.__init__(self, name, self.STOCK_URL%(code, year), self.onsuccess, self.onfailure, 'stock')
+		job.__init__(self, name, self.STOCK_HOST, self.STOCK_URL%(code, year), self.onsuccess, self.onfailure, 'stock')
 		job.year = year
 		self.symbol = symbol
 		self.code = code

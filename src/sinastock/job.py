@@ -8,13 +8,15 @@ from sgmllib import SGMLParser
 class job():
 	idx = 1
 	name = ''
+	host = ''
 	url = ''
 	year = 2011
 	content = ''
 	finish = False
 
-	def __init__(self, name, url, onsuccess, onfailure, userdata):
+	def __init__(self, name, host, url, onsuccess, onfailure, userdata):
 		self.name = name
+		self.host = host
 		self.url = url
 		self.onsuccess = onsuccess
 		self.onfailure = onfailure

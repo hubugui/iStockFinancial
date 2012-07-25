@@ -10,10 +10,11 @@ from stock import *
 from job import *
 
 class industry(job):
-	INDUSTRY_URL = 'http://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=10000&sort=symbol&asc=1&node=%s&_s_r_a=auto'
+	INDUSTRY_HOST = 'http://vip.stock.finance.sina.com.cn'
+	INDUSTRY_URL = '/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=10000&sort=symbol&asc=1&node=%s&_s_r_a=auto'
 
 	def __init__(self, name='nongye', code='hangye_za01'):
-		job.__init__(self, name, self.INDUSTRY_URL%(code), self.onsuccess, self.onfailure, 'industry')
+		job.__init__(self, name, self.INDUSTRY_HOST, self.INDUSTRY_URL%(code), self.onsuccess, self.onfailure, 'industry')
 		self.code = code
 		self.content = ''
 		self.stocks = []
