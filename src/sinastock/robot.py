@@ -58,6 +58,7 @@ class robot:
 
 		# stocks
 		idx = 0
+		elapsed = 0
 		for i, ind in enumerate(industrys):
 			if ind.exist(self.home):
 				print '%03d.%s, %d->already exist'%(i + 1, ind.name, len(ind.stocks))
@@ -71,10 +72,13 @@ class robot:
 				self.crawler.join()
 
 				ind.save(self.home)
+				elapsed += ind.elapsed
 
 				if i > 8:
 					break
 
+		print 'average elapsed %fs'%(elapsed / idx)
+					
 	def go(self):
 		go_t = time.time()
 		print '%s> go'%(self.get_time(go_t))

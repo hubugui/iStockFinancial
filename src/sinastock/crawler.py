@@ -54,9 +54,9 @@ class crawler():
 
 			try:
 				beg = time.time()
-			
-				urllib2_read(job)
-				# urllib3_read(job)
+
+				# self.urllib2_read(job)
+				self.urllib3_read(job)
 
 				job.elapsed = time.time() - beg
 				job.finish = True
