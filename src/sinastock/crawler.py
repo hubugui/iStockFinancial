@@ -38,28 +38,27 @@ class crawler():
 
 		self.http = urllib3.PoolManager(maxsize = max_io)
 
-	total_io_elapsed = 0
+	def urllib2_read(self, job):
+		response = urllib2.urlopen(urllib2.Request(job.host + job.get_url()))
+		job.set_content(response.read())
+		response.close()
+
+	def urllib3_read(self, job):
+		url_pools = self.http.connection_from_url(job.host)
+		response = url_pools.urlopen('GET', job.get_url(), redirect=True)
+		job.set_content(response.data)
 
 	def io_run(self):
 		while True:
 			job = self.io_queue.get()
 
 			try:
-
 				beg = time.time()
 			
-				response = urllib2.urlopen(urllib2.Request(job.host + job.get_url()))
-				job.set_content(response.read())
-				response.close()
+				urllib2_read(job)
+				# urllib3_read(job)
 
-				self.total_io_elapsed += time.time() - beg		
-				
-				'''
-
-				url_pools = self.http.connection_from_url(job.host)
-				response = url_pools.urlopen('GET', job.get_url(), redirect=True)
-				job.set_content(response.data)
-'''				
+				job.elapsed = time.time() - beg
 				job.finish = True
 			except Exception, err:
 				print ''

@@ -71,7 +71,7 @@ class robot:
 				self.crawler.join()
 
 				ind.save(self.home)
-				
+
 				if i > 8:
 					break
 
@@ -83,4 +83,3 @@ class robot:
 
 		bye_t = time.time()
 		print '%s> byebye, elapsed time %ds'%(self.get_time(bye_t), bye_t - go_t)
-		print 'total_io_elapsed=%ds'%(self.crawler.total_io_elapsed)

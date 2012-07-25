@@ -56,6 +56,8 @@ class industry(job):
 		return dir, path
 
 	def save(self, home='.'):
+		elapsed = 0
+
 		dir, path = self.fs(home)
 		if not os.path.exists(dir):
 			os.mkdir(dir)
@@ -78,10 +80,14 @@ class industry(job):
 				print 'fatal error, %s is not finish'%(stock.name)
 				sys.exit(0)
 
+			elapsed += stock.elapsed
+
 		json_string += "]}"
 
 		fd.write(json_string.encode('utf-8'))
 		fd.close()
+
+		print 'elapsed %ds'%(elapsed)
 
 	def exist(self, home='.'):
 		dir, path = self.fs(home)

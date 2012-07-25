@@ -13,6 +13,7 @@ class job():
 	year = 2011
 	content = ''
 	finish = False
+	elapsed = 0
 
 	def __init__(self, name, host, url, onsuccess, onfailure, userdata):
 		self.name = name
