@@ -11,26 +11,16 @@ from urllib3 import *
 
 urls = \
 [
-	'http://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=1000&sort=symbol&node=hangye_ZA01',
-	'http://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=1000&sort=symbol&node=hangye_ZA03',
-	'http://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=1000&sort=symbol&node=hangye_ZA05',
-	'http://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=1000&sort=symbol&node=hangye_ZA07',
-	'http://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=1000&sort=symbol&node=hangye_ZA09',
-	'http://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=1000&sort=symbol&node=hangye_ZB01',
-	'http://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=1000&sort=symbol&node=hangye_ZB03',
-	'http://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=1000&sort=symbol&node=hangye_ZB05',
-	'http://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=1000&sort=symbol&node=hangye_ZB07',
-	'http://vip.stock.finance.sina.com.cn/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=1000&sort=symbol&node=hangye_ZB49',
-	'http://money.finance.sina.com.cn/corp/go.php/vFD_FinancialGuideLine/stockid/900930/ctrl/2011/displaytype/4.phtml',
-	'http://money.finance.sina.com.cn/corp/go.php/vFD_FinancialGuideLine/stockid/900931/ctrl/2011/displaytype/4.phtml',
-	'http://money.finance.sina.com.cn/corp/go.php/vFD_FinancialGuideLine/stockid/900932/ctrl/2011/displaytype/4.phtml',
-	'http://money.finance.sina.com.cn/corp/go.php/vFD_FinancialGuideLine/stockid/900933/ctrl/2011/displaytype/4.phtml',
-	'http://money.finance.sina.com.cn/corp/go.php/vFD_FinancialGuideLine/stockid/900934/ctrl/2011/displaytype/4.phtml',
-	'http://money.finance.sina.com.cn/corp/go.php/vFD_FinancialGuideLine/stockid/900935/ctrl/2011/displaytype/4.phtml',
-	'http://money.finance.sina.com.cn/corp/go.php/vFD_FinancialGuideLine/stockid/900936/ctrl/2011/displaytype/4.phtml',
-	'http://money.finance.sina.com.cn/corp/go.php/vFD_FinancialGuideLine/stockid/900937/ctrl/2011/displaytype/4.phtml',
-	'http://money.finance.sina.com.cn/corp/go.php/vFD_FinancialGuideLine/stockid/900938/ctrl/2011/displaytype/4.phtml',
-	'http://money.finance.sina.com.cn/corp/go.php/vFD_FinancialGuideLine/stockid/900939/ctrl/2011/displaytype/4.phtml',
+	'/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=1000&sort=symbol&node=hangye_ZA01',
+	'/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=1000&sort=symbol&node=hangye_ZA03',
+	'/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=1000&sort=symbol&node=hangye_ZA05',
+	'/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=1000&sort=symbol&node=hangye_ZA07',
+	'/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=1000&sort=symbol&node=hangye_ZA09',
+	'/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=1000&sort=symbol&node=hangye_ZB01',
+	'/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=1000&sort=symbol&node=hangye_ZB03',
+	'/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=1000&sort=symbol&node=hangye_ZB05',
+	'/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=1000&sort=symbol&node=hangye_ZB07',
+	'/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=1000&sort=symbol&node=hangye_ZB49',
 ]
 
 def urllib2_pull():
@@ -43,21 +33,24 @@ def urllib2_pull():
 	print ''
 
 def urllib3_pull():
+
 	ip = socket.gethostbyname(socket.gethostname())
 	if ip.startswith('137.'):
-		http_pool = HTTPConnectionPool('10.77.8.70:8080', maxsize = 10)
+		http_pool = urllib3.HTTPConnectionPool('10.77.8.70:8080', maxsize = 10)
 	else:
-		http_pool = HTTPConnectionPool('vip.stock.finance.sina.com.cn', maxsize = 10)
+		http_pool = urllib3.HTTPConnectionPool('vip.stock.finance.sina.com.cn', maxsize = 10)
 
 	for url in urls:
+		if ip.startswith('137.'):
+			url = 'http://vip.stock.finance.sina.com.cn' + url
 		r = http_pool.urlopen('GET', url, assert_same_host=False)
-		print '.',
+		print len(r.data)
 	print ''
 
 def main(argv):
 	begin = time.time()
 
-	urllib2_pull()
+	#urllib2_pull()
 
 	end = time.time()
 	print 'urllib2> elapsed time %ds'%(end - begin)
