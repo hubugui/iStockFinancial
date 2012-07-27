@@ -12,12 +12,12 @@ import threading
 from crawler_thread import *
 
 class crawler():
-	def __init__(self, max_io = 10, max_parser = 2, request_rate = 500, proxy = ''):
+	def __init__(self, max_io = 10, max_parser = 2, request_rate = 500, proxy = '', hosts = ['vip.stock.finance.sina.com.cn', 'money.finance.sina.com.cn']):
 		self.max_io = max_io
 		self.max_parser = max_parser
 		self.request_rate = request_rate
-		self.io_queue = Queue.Queue(100)
-		self.parser_queue = Queue.Queue(100)
+		self.io_queue = Queue.Queue()
+		self.parser_queue = Queue.Queue()
 
 		for i in range(self.max_io):
 			t = crawler_thread(self.io_run, self.io_queue, self.parser_queue)
@@ -29,40 +29,44 @@ class crawler():
 			t.setDaemon(True)
 			t.start()
 
-		socket.setdefaulttimeout(3)
+		socket.setdefaulttimeout(5)
 		#ip = socket.gethostbyname(socket.gethostname())
 		#if ip.startswith('137.'):
 		#	self.http_pool = HTTPConnectionPool('10.77.8.70:8080', maxsize = max_io)
 		#else:
 		#	self.http_pool = HTTPConnectionPool('vip.stock.finance.sina.com.cn', maxsize = max_io)
 
-		self.http = urllib3.PoolManager(maxsize = max_io)
 
 	def urllib2_read(self, job):
 		response = urllib2.urlopen(urllib2.Request(job.host + job.get_url()))
 		job.set_content(response.read())
 		response.close()
 
-	def urllib3_read(self, job):
-		url_pools = self.http.connection_from_url(job.host)
-		response = url_pools.urlopen('GET', job.get_url(), redirect=True)
+	def urllib3_read(self, pool, job):
+		conn = pool.connection_from_url(job.host)
+
+		print threading.currentThread().getName(), '>', job.host
+
+		response = conn.urlopen('GET', job.get_url(), redirect=True)
 		job.set_content(response.data)
 
 	def io_run(self):
+		pool = urllib3.PoolManager()
+
 		while True:
 			job = self.io_queue.get()
 
-			while True:
+			while job.finish == False:
 				try:
 					beg = time.time()
 
-					self.urllib2_read(job)
-					# self.urllib3_read(job)
+					# self.urllib2_read(job)
+					self.urllib3_read(pool, job)
 
 					job.elapsed = time.time() - beg
 					job.finish = True
+
 					self.parser_queue.put(job)
-					break
 				except Exception, err:
 					print ''
 					print 'io_thread> err %s'%(err)
