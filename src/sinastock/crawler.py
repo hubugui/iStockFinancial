@@ -45,7 +45,7 @@ class crawler():
 	def urllib3_read(self, pool, job):
 		conn = pool.connection_from_url(job.host)
 
-		print threading.currentThread().getName(), '>', job.host
+		# print threading.currentThread().getName(), '>', conn.__repr__(), job.host
 
 		response = conn.urlopen('GET', job.get_url(), redirect=True)
 		job.set_content(response.data)
