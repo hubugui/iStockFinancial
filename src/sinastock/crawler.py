@@ -29,7 +29,7 @@ class crawler():
 			t.setDaemon(True)
 			t.start()
 
-		socket.setdefaulttimeout(20)
+		socket.setdefaulttimeout(3)
 		#ip = socket.gethostbyname(socket.gethostname())
 		#if ip.startswith('137.'):
 		#	self.http_pool = HTTPConnectionPool('10.77.8.70:8080', maxsize = max_io)
@@ -52,40 +52,33 @@ class crawler():
 		while True:
 			job = self.io_queue.get()
 
-			try:
-				beg = time.time()
+			while True:
+				try:
+					beg = time.time()
 
-				# self.urllib2_read(job)
-				self.urllib3_read(job)
+					self.urllib2_read(job)
+					# self.urllib3_read(job)
 
-				job.elapsed = time.time() - beg
-				job.finish = True
-			except Exception, err:
-				print ''
-				print 'io_thread> err %s'%(err)
-				job.onfailure()
+					job.elapsed = time.time() - beg
+					job.finish = True
+					self.parser_queue.put(job)
+					break
+				except Exception, err:
+					print ''
+					print 'io_thread> err %s'%(err)
+					job.onfailure()
 
-			self.parser_queue.put(job)
 			self.io_queue.task_done()
 
 	def parser_run(self):
 		while True:
 			job = self.parser_queue.get()
-
-			if job.finish == True:
-				job.onsuccess()
-			else:
-				self.io_queue.put(job)
-
+			job.onsuccess()
 			self.parser_queue.task_done()
 
 	def put(self, job):
 		self.io_queue.put(job)
 
 	def join(self):
-		while True:
-			self.io_queue.join()
-			self.parser_queue.join()
-
-			if self.io_queue.qsize() == 0 and self.parser_queue.qsize() == 0:
-				break			
+		self.io_queue.join()
+		self.parser_queue.join()

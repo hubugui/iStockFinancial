@@ -74,10 +74,10 @@ class robot:
 				ind.save(self.home)
 				elapsed += ind.elapsed
 
-				if i > 8:
+				if i > 20:
 					break
 
-		print 'average elapsed %fs'%(elapsed / idx)
+		print 'idx=%d, average elapsed %fs'%(idx, elapsed / idx)
 					
 	def go(self):
 		go_t = time.time()
