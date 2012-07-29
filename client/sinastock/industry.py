@@ -55,9 +55,6 @@ class industry(job):
 	def set_home(self, home):
 		self.home = home
 
-	def get_home(self):
-		return self.home
-
 	def fs(self, home='.'):
 		dir = '%s/%s'%(home, self.get_year())
 		if not os.path.exists(dir):

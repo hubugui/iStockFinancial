@@ -10,20 +10,18 @@ import socket
 from industry import *
 from market_center import *
 from stock import *
-from stock_parser import *
 from crawler import *
 
 class robot:
-	def __init__(self, year='2011', home='.'):
-		self.year = year
+	def __init__(self, home='.', year='2011'):
 		self.home = home
+		self.year = year
 		self.crawler = crawler(10, 5, 500)
 
 	def get_time(self, t):
 		return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
 
 	def save_financial_keys(self):
-		# financial data keys
 		fd = open(self.home + '/financial_keys.js', 'wb')
 
 		financial_content = 'var financial_keys = ['
@@ -58,7 +56,7 @@ class robot:
 		print '%s> over'%(self.get_time(time.time()))
 
 		idx = 0
-		foreach_num = 8
+		foreach_num = len(industrys)
 		for i, ind in enumerate(industrys):
 			if ind.exist(self.home):
 				print '%03d.%s, %d->already exist'%(i + 1, ind.name, len(ind.stocks))
@@ -76,12 +74,16 @@ class robot:
 		print '%s> idx=%d'%(self.get_time(time.time()), idx)
 
 	def go(self):
+		elapsed = 0
 		methods = ['urllib3']
 		for method in methods:
 			go_t = time.time()
-			print '%s> %s go'%(self.get_time(go_t), method)
+			print '%s> year %s %s go'%(self.get_time(go_t), self.year, method)
 
 			self.fire(method)
 
 			bye_t = time.time()
-			print '%s> %s byebye, elapsed time %ds'%(self.get_time(bye_t), method, bye_t - go_t)
+			elapsed += bye_t - go_t
+			print '%s> year %s %s byebye, elapsed time %ds'%(self.get_time(bye_t), self.year, method, bye_t - go_t)
+
+		return elapsed

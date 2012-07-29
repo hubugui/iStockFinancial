@@ -3,14 +3,20 @@ iStockFinancial
 
 sina stock and financial statistical tools.
 
-The development is based on python 2.6.1 and urllib3(https://github.com/shazow/urllib3/zipball/1.4)
+It includes client and server, client provide tools to download industry and stock information to JSON.
+server provide Web access interface.
 
-step
+The development is based on python 2.6.1 and urllib3 V1.4
+
+client step
 ===============
-
 1. please install python 2.6.1
-2. tar -xf xlwt-0.7.4.tar.gz
-3. cd xlwt-0.7.4
+2. wget -O urllib3-V1.4.zip https://github.com/shazow/urllib3/zipball/1.4
+3. unzip urllib3-V1.4.zip
+4. cd shazow-urllib3-1ffd99e
 4. sudo python setup.py install
-5. cd ../src
-6. python main.py 2011 .
+5. cd ../client
+6. python main.py .
+
+as step 6, client will download year 1989~2011 stock financial information and save to current directory.
+you also can indicate a year as parameter, such as 'python main.py . 2011'

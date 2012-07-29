@@ -18,7 +18,7 @@ class crawler():
 		self.request_rate = request_rate
 		self.io_queue = Queue.Queue()
 		self.parser_queue = Queue.Queue()
-		self.method = 'urlmethod'
+		self.method = 'urllib3'
 		for i in range(self.max_io):
 			t = crawler_thread(self.io_run, self.io_queue, self.parser_queue)
 			t.setDaemon(True)
@@ -40,16 +40,17 @@ class crawler():
 		job.set_content(response.data)
 
 	def io_run(self):
-		conn = urllib3.connection_from_url('money.finance.sina.com.cn')
+		pool = urllib3.PoolManager()
 		while True:
 			job = self.io_queue.get()
 			while job.finish == False:
 				try:
 					beg = time.time()
 
-					if self.method == 'urlmethod':
+					if self.method == 'urllib2':
 						self.urllib2_read(job)
 					else:
+						conn = pool.connection_from_url(job.host)
 						self.urllib3_read(conn, job)
 
 					job.elapsed = time.time() - beg
