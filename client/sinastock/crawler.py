@@ -12,7 +12,7 @@ import threading
 from crawler_thread import *
 
 class crawler():
-	def __init__(self, max_io = 10, max_parser = 2, request_rate = 500, proxy = '', hosts = ['vip.stock.finance.sina.com.cn', 'money.finance.sina.com.cn']):
+	def __init__(self, max_io = 10, max_parser = 2, request_rate = 500):
 		self.max_io = max_io
 		self.max_parser = max_parser
 		self.request_rate = request_rate

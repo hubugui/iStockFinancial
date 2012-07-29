@@ -13,10 +13,10 @@ from stock import *
 from crawler import *
 
 class robot:
-	def __init__(self, home='.', year='2011'):
+	def __init__(self, home='.', year='2011', crawler=None):
 		self.home = home
 		self.year = year
-		self.crawler = crawler(10, 5, 500)
+		self.crawler = crawler
 
 	def get_time(self, t):
 		return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
