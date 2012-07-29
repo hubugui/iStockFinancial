@@ -10,7 +10,7 @@ from stock import *
 from job import *
 
 class industry(job):
-	INDUSTRY_HOST = 'vip.stock.finance.sina.com.cn'
+	INDUSTRY_HOST = 'money.finance.sina.com.cn'
 	INDUSTRY_URL = '/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=10000&sort=symbol&asc=1&node=%s&_s_r_a=auto'
 
 	def __init__(self, name='nongye', code='hangye_za01'):
@@ -18,34 +18,45 @@ class industry(job):
 		self.code = code
 		self.content = ''
 		self.stocks = []
+		self.stock_done = 0
+		self.elapsed = 0
 
 	def preprocess(self, content):
 		# replace ticktime error
 		content = re.sub(r'\d+:\d+:\d+', '', content)
-
 	 	# adjust json format
 		content = re.sub(r"{\s*(\w)", r'{"\1', content)
 		content = re.sub(r",\s*(\w)", r',"\1', content)
 		content = re.sub(r"(\w):", r'\1":', content)
-
 		return content
 
 	def onsuccess(self):
 		if self.content == 'null':
 			print '^',
 		else:
-			self.content = self.preprocess(self.content)
-
-			stocks = json.loads(self.content, encoding="gbk")
 			print '.',
-
+			self.content = self.preprocess(self.content)
+			stocks = json.loads(self.content, encoding="gbk")
 			for i, element in enumerate(stocks):
-				job = stock(self.get_year(), element["symbol"], element["code"], element["name"])
+				job = stock(self.get_year(), element["symbol"], element["code"], element["name"], self)
 				self.stocks.append(job)
 
 	def onfailure(self):
 		print ''
 		print '%03d. %s %s, failure'%(self.idx, self.code, self.name)
+
+	def onstock_done(self, stock):
+		assert self.stock_done <= len(self.stocks)	
+		self.elapsed += stock.elapsed
+		self.stock_done += 1
+		if self.stock_done == len(self.stocks):
+			self.save(self.home)
+
+	def set_home(self, home):
+		self.home = home
+
+	def get_home(self):
+		return self.home
 
 	def fs(self, home='.'):
 		dir = '%s/%s'%(home, self.get_year())
@@ -59,7 +70,6 @@ class industry(job):
 		dir, path = self.fs(home)
 		if not os.path.exists(dir):
 			os.mkdir(dir)
-
 		fd = open(path, 'wb')
 
 		json_string = u"var %s = {'code':'%s', 'name':'%s', 'stocks':["%(self.code, self.code, self.name)

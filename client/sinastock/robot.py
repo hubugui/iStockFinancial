@@ -17,7 +17,7 @@ class robot:
 	def __init__(self, year='2011', home='.'):
 		self.year = year
 		self.home = home
-		self.crawler = crawler(10, 2, 500)
+		self.crawler = crawler(10, 5, 500)
 
 	def get_time(self, t):
 		return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
@@ -34,19 +34,20 @@ class robot:
 		fd.write(financial_content)
 		fd.close()
 
-	def fire(self):
+	def fire(self, method):
+		self.crawler.set_method(method)
 		self.save_financial_keys()
 
 		# martet
-		market = market_center()
-		market.pull()
-		market.save_js(self.home)
-
+		self.market = market_center()
+		self.market.pull()
+		self.market.save_js(self.home)
 		# csrc industrys
-		industrys = market.get_csrc_industrys()
+		industrys = self.market.get_csrc_industrys()
 		for i, ind in enumerate(industrys):
 			ind.set_idx(i + 1)
 			ind.set_year(self.year)
+			ind.set_home(self.home)
 			self.crawler.put(ind)
 
 		print '%s> waiting for pull csrc industry, number=%d'%(self.get_time(time.time()), len(industrys))
@@ -56,34 +57,31 @@ class robot:
 		print ''
 		print '%s> over'%(self.get_time(time.time()))
 
-		# stocks
 		idx = 0
-		elapsed = 0
+		foreach_num = 8
 		for i, ind in enumerate(industrys):
 			if ind.exist(self.home):
 				print '%03d.%s, %d->already exist'%(i + 1, ind.name, len(ind.stocks))
 			else:
 				print '%03d.%s, %d'%(i + 1, ind.name, len(ind.stocks))
-
 				for stock in ind.stocks:
 					idx += 1
 					stock.set_idx(idx)
 					self.crawler.put(stock)
-				self.crawler.join()
-
-				ind.save(self.home)
-				elapsed += ind.elapsed
-
-				if i > 20:
+				if i >= foreach_num:
 					break
 
-		print 'idx=%d, average elapsed %fs'%(idx, elapsed / idx)
-					
+		self.crawler.join()
+
+		print '%s> idx=%d'%(self.get_time(time.time()), idx)
+
 	def go(self):
-		go_t = time.time()
-		print '%s> go'%(self.get_time(go_t))
+		methods = ['urllib3']
+		for method in methods:
+			go_t = time.time()
+			print '%s> %s go'%(self.get_time(go_t), method)
 
-		self.fire()
+			self.fire(method)
 
-		bye_t = time.time()
-		print '%s> byebye, elapsed time %ds'%(self.get_time(bye_t), bye_t - go_t)
+			bye_t = time.time()
+			print '%s> %s byebye, elapsed time %ds'%(self.get_time(bye_t), method, bye_t - go_t)

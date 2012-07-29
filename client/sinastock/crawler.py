@@ -18,57 +18,45 @@ class crawler():
 		self.request_rate = request_rate
 		self.io_queue = Queue.Queue()
 		self.parser_queue = Queue.Queue()
-
+		self.method = 'urlmethod'
 		for i in range(self.max_io):
 			t = crawler_thread(self.io_run, self.io_queue, self.parser_queue)
 			t.setDaemon(True)
 			t.start()
-
 		for i in range(self.max_parser):
 			t = crawler_thread(self.parser_run, self.io_queue, self.parser_queue)
 			t.setDaemon(True)
 			t.start()
 
 		socket.setdefaulttimeout(5)
-		#ip = socket.gethostbyname(socket.gethostname())
-		#if ip.startswith('137.'):
-		#	self.http_pool = HTTPConnectionPool('10.77.8.70:8080', maxsize = max_io)
-		#else:
-		#	self.http_pool = HTTPConnectionPool('vip.stock.finance.sina.com.cn', maxsize = max_io)
-
 
 	def urllib2_read(self, job):
-		response = urllib2.urlopen(urllib2.Request(job.host + job.get_url()))
+		response = urllib2.urlopen('http://' + job.host + job.get_url())
 		job.set_content(response.read())
-		response.close()
 
-	def urllib3_read(self, pool, job):
-		conn = pool.connection_from_url(job.host)
-
-		# print threading.currentThread().getName(), '>', conn.__repr__(), job.host
-
-		response = conn.urlopen('GET', job.get_url(), redirect=True)
+	def urllib3_read(self, conn, job):
+		#print threading.currentThread().getName(), '>', conn.__repr__(), job.host
+		response = conn.urlopen('GET', job.get_url(), redirect=True, timeout=20)
 		job.set_content(response.data)
 
 	def io_run(self):
-		pool = urllib3.PoolManager()
-
+		conn = urllib3.connection_from_url('money.finance.sina.com.cn')
 		while True:
 			job = self.io_queue.get()
-
 			while job.finish == False:
 				try:
 					beg = time.time()
 
-					# self.urllib2_read(job)
-					self.urllib3_read(pool, job)
+					if self.method == 'urlmethod':
+						self.urllib2_read(job)
+					else:
+						self.urllib3_read(conn, job)
 
 					job.elapsed = time.time() - beg
 					job.finish = True
 
 					self.parser_queue.put(job)
 				except Exception, err:
-					print ''
 					print 'io_thread> err %s'%(err)
 					job.onfailure()
 
@@ -86,3 +74,6 @@ class crawler():
 	def join(self):
 		self.io_queue.join()
 		self.parser_queue.join()
+
+	def set_method(self, method):
+		self.method = method
