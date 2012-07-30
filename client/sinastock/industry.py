@@ -10,47 +10,35 @@ from stock import *
 from job import *
 
 class industry(job):
-	INDUSTRY_HOST = 'money.finance.sina.com.cn'
-	INDUSTRY_URL = '/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=10000&sort=symbol&asc=1&node=%s&_s_r_a=auto'
+	HOST = 'http://money.finance.sina.com.cn'
+	URL = '/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=10000&sort=symbol&asc=1&node=%s&_s_r_a=auto'
 
 	def __init__(self, name='nongye', code='hangye_za01'):
-		job.__init__(self, name, self.INDUSTRY_HOST, self.INDUSTRY_URL%(code), self.onsuccess, self.onfailure, 'industry')
+		job.__init__(self, name, self.HOST, self.URL%(code), self.onsuccess, self.onfailure, 'industry')
 		self.code = code
-		self.content = ''
 		self.stocks = []
-		self.stock_done = 0
 		self.elapsed = 0
+		self.stocks_json = ''
 
-	def preprocess(self, content):
+	def adjust(self):
 		# replace ticktime error
-		content = re.sub(r'\d+:\d+:\d+', '', content)
+		self.content = re.sub(r'\d+:\d+:\d+', '', self.content)
 	 	# adjust json format
-		content = re.sub(r"{\s*(\w)", r'{"\1', content)
-		content = re.sub(r",\s*(\w)", r',"\1', content)
-		content = re.sub(r"(\w):", r'\1":', content)
-		return content
+		self.content = re.sub(r"{\s*(\w)", r'{"\1', self.content)
+		self.content = re.sub(r",\s*(\w)", r',"\1', self.content)
+		self.content = re.sub(r"(\w):", r'\1":', self.content)
 
 	def onsuccess(self):
 		if self.content == 'null':
 			print '^',
 		else:
 			print '.',
-			self.content = self.preprocess(self.content)
-			stocks = json.loads(self.content, encoding="gbk")
-			for i, element in enumerate(stocks):
-				job = stock(self.get_year(), element["symbol"], element["code"], element["name"], self)
-				self.stocks.append(job)
+			self.adjust()
+			self.stocks_json = json.loads(self.content, encoding="gbk")
 
 	def onfailure(self):
 		print ''
 		print '%03d. %s %s, failure'%(self.idx, self.code, self.name)
-
-	def onstock_done(self, stock):
-		assert self.stock_done <= len(self.stocks)	
-		self.elapsed += stock.elapsed
-		self.stock_done += 1
-		if self.stock_done == len(self.stocks):
-			self.save(self.home)
 
 	def set_home(self, home):
 		self.home = home
@@ -60,7 +48,6 @@ class industry(job):
 		if not os.path.exists(dir):
 			os.mkdir(dir)
 		path = '%s/%s.js'%(dir, self.code)
-
 		return dir, path
 
 	def save(self, home='.'):
@@ -77,14 +64,11 @@ class industry(job):
 
 				for key, value in sorted(stock.get_values().iteritems()):
 					key_pack = key.split(key_separator)
-
 					json_string += "'" + str(value) + "',"
-
 				json_string += ']}, '
 			else:
 				print 'fatal error, %s is not finish'%(stock.name)
 				sys.exit(0)
-
 			self.elapsed += stock.elapsed
 
 		json_string += "]}"

@@ -1,26 +1,41 @@
 #!/usr/bin/env python
 
-import os
 import sys
+import time
 
-from sinastock.robot import *
 from sinastock.crawler import *
+from sinastock.robot import *
+from sinastock.setting import *
+
+def usage():
+	print "for example: 'python main.py /opt/istock 2011'"
+	print "for example: 'python main.py .', This means that pull data from year 1989 to the system time"
 
 def main(argv):
-	craw = crawler(10, 5, 500)
-	if len(argv) == 3:
-		rbt = robot(argv[1], argv[2], craw)
-		rbt.go()
-	elif len(argv) == 2:
-		elapsed = 0
-		for year in range(1989, 2012):
-			rbt = robot(argv[1], str(year), craw)
-			elapsed += rbt.go()
+	setting['crawler'] = crawler(10, 5, 500)
+	setting['robot'] = robot()
 
-		print 'total elapsed %ds'%(elapsed)
+	if len(argv) == 3:
+		# Normal, this case as increment pull or test 
+		setting['home'] = argv[1]
+		setting['years'] = [argv[2]]
+		setting['robot'].go()
+	elif len(argv) == 2:
+		# pull all data since year 1989
+		years = []
+		system_year = time.gmtime()[0]
+		for year in range(1989, system_year):
+			years.append(year)
+
+		setting['home'] = argv[1]
+		setting['years'] = years		
+		if len(years) > 0:
+			setting['robot'].go()
+		else:
+			print 'error in your system time less than year 1989'
+			usage()
 	else:
-		print("for example: 'python main.py /opt/istock 2011'")
-		print("for example: 'python main.py .'")
+		usage()
 
 if __name__ == '__main__':
 	main(sys.argv)

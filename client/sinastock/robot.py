@@ -4,86 +4,100 @@ import os
 import sys
 import time
 import Queue
-import threading
-import socket
 
-from industry import *
-from market_center import *
-from stock import *
 from crawler import *
+from industry import *
+from job import *
+from market_center import *
+from setting import *
+from stock import *
 
 class robot:
-	def __init__(self, home='.', year='2011', crawler=None):
-		self.home = home
-		self.year = year
-		self.crawler = crawler
-
 	def get_time(self, t):
 		return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))
 
-	def save_financial_keys(self):
-		fd = open(self.home + '/financial_keys.js', 'wb')
+	def fire_financial_keys(self):
+		fd = open(setting['home'] + '/financial_keys.js', 'wb')
 
-		financial_content = 'var financial_keys = ['
+		content = 'var financial_keys = ['
 		for key in financial_keys:
-			financial_content += "'" + key + "',"
-		financial_content += '];'
+			content += "'" + key + "',"
+		content += '];'
 
-		fd.write(financial_content)
+		fd.write(content)
 		fd.close()
 
-	def fire(self, method):
-		self.crawler.set_method(method)
-		self.save_financial_keys()
-
-		# martet
+	def fire_market(self):	
+		print '%s> pull market center'%(self.get_time(time.time()))
+	
 		self.market = market_center()
-		self.market.pull()
-		self.market.save_js(self.home)
-		# csrc industrys
-		industrys = self.market.get_csrc_industrys()
-		for i, ind in enumerate(industrys):
-			ind.set_idx(i + 1)
-			ind.set_year(self.year)
-			ind.set_home(self.home)
-			self.crawler.put(ind)
+		setting['crawler'].put(self.market)
+		setting['crawler'].join()
+		self.market.save(setting['home'])
 
-		print '%s> waiting for pull csrc industry, number=%d'%(self.get_time(time.time()), len(industrys))
+		print '%s> over'%(self.get_time(time.time()))
 
-		self.crawler.join()
+	def fire_industry(self):
+		self.industrys = self.market.get_csrc_industrys()
+		for industry_idx, ind in enumerate(self.industrys):
+			ind.set_idx(industry_idx + 1)
+			setting['crawler'].put(ind)
+
+		print '%s> pull csrc industry, number=%d'%(self.get_time(time.time()), len(self.industrys))
+
+		setting['crawler'].join()
 
 		print ''
 		print '%s> over'%(self.get_time(time.time()))
 
-		idx = 0
-		foreach_num = len(industrys)
-		for i, ind in enumerate(industrys):
-			if ind.exist(self.home):
-				print '%03d.%s, %d->already exist'%(i + 1, ind.name, len(ind.stocks))
+	def fire_stock(self, year):
+		industry_idx = 0
+		industry_num = 1#len(self.industrys)
+
+		stock_idx = 0
+		stock_num = 1
+		for industry_idx, ind in enumerate(self.industrys):
+			if ind.exist(setting['home']):
+				print '%03d.%s, %d->already exist'%(industry_idx + 1, ind.name, len(ind.stocks))
 			else:
-				print '%03d.%s, %d'%(i + 1, ind.name, len(ind.stocks))
-				for stock in ind.stocks:
-					idx += 1
-					stock.set_idx(idx)
-					self.crawler.put(stock)
-				if i >= foreach_num:
+				print '%03d.%s, %d'%(industry_idx + 1, ind.name, len(ind.stocks_json))
+
+				for element in ind.stocks_json:
+					stock_idx += 1
+
+					job = stock(year, element["symbol"], element["code"], element["name"])
+					job.set_idx(stock_idx)
+					ind.stocks.append(job)
+					setting['crawler'].put(job)
+
+					if stock_idx >= stock_num:
+						break
+				if industry_idx + 1 >= industry_num:
 					break
 
-		self.crawler.join()
-
-		print '%s> idx=%d'%(self.get_time(time.time()), idx)
+		setting['crawler'].join()
+		print '%s> over, stock_idx=%d'%(self.get_time(time.time()), stock_idx)
 
 	def go(self):
-		elapsed = 0
-		methods = ['urllib3']
-		for method in methods:
-			go_t = time.time()
-			print '%s> year %s %s go'%(self.get_time(go_t), self.year, method)
+		self.fire_financial_keys()
 
-			self.fire(method)
+		year = setting['years'][-1]
+		total_elapsed = 0
+		for method in ['urllib2']:
+			setting['crawler'].set_method(method)
 
-			bye_t = time.time()
-			elapsed += bye_t - go_t
-			print '%s> year %s %s byebye, elapsed time %ds'%(self.get_time(bye_t), self.year, method, bye_t - go_t)
+			self.fire_market()
+			self.fire_industry()
 
-		return elapsed
+			elapsed = 0
+			beg_t = time.time()
+			print '%s> year=%d %s go'%(self.get_time(beg_t), year, method)
+
+			self.fire_stock(year)
+
+			end_t = time.time()
+			elapsed = end_t - beg_t
+			total_elapsed += elapsed
+			print '%s> year=%d %s byebye, elapsed %ds'%(self.get_time(end_t), year, method, elapsed)
+
+		print 'total elapsed %ds'%(total_elapsed)

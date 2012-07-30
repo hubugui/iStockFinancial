@@ -4,6 +4,7 @@
 from sgmllib import SGMLParser
 
 key_separator = '^_^'
+years_key = '历年数据'
 financial_keys = \
 [
 	'总资产利润率(%)',
@@ -66,18 +67,21 @@ financial_keys = \
 ]
 
 class stock_parser(SGMLParser):
-	key = ''
-	td_segment = False
-	a_segment = False
-	intercept = False
-	data_idx = 1
+	td_segment=False
+	a_segment=False
+	intercept=False
+	data_idx=1
+	key=''
+	
+	years_intercept = False
 
 	def reset(self):
 		self.urls=[]
 		SGMLParser.reset(self)
 
-	def parse(self, data, values):
+	def parse(self, data, values, years):
 		self.values = values
+		self.years = years
 		self.feed(data)
 		self.close()
 
@@ -86,6 +90,7 @@ class stock_parser(SGMLParser):
 
 	def end_td(self):
 		self.td_segment = False
+		self.years_intercept = False
 
 	def start_a(self, attrs):
 		self.a_segment = True
@@ -93,7 +98,7 @@ class stock_parser(SGMLParser):
 	def end_a(self):
 		self.a_segment = False
 
-	def handle_data(self, data):
+	def handle_financial(self, data):
 		if self.a_segment == True:
 			if data in financial_keys:
 				self.intercept = True
@@ -101,7 +106,6 @@ class stock_parser(SGMLParser):
 				self.data_idx += 1
 		elif self.td_segment == True:
 			if self.intercept == True:
-				data = data.strip(' \t\n\r')
 				if len(data) > 0:
 					self.intercept = False
 
@@ -110,10 +114,23 @@ class stock_parser(SGMLParser):
 					except:
 						value = float(0.0)
 
-					if self.key in self.values:
-						self.values[self.key] = self.values[self.key] + value
-					else:
+					if self.key not in self.values:
 						self.values[self.key] = value
 
-					# print self.key + ":" + str(self.values[self.key])
-					# print '.',
+					#print self.key + ":" + str(self.values[self.key])
+					#print '.',
+
+	def handle_years(self, data):
+		if self.a_segment == True:
+			if self.years_intercept == True:
+				if len(data) > 0:
+					self.years.append(data)
+					#print data
+		elif self.td_segment == True:
+			if data.startswith(years_key):
+				self.years_intercept = True
+
+	def handle_data(self, data):
+		data = data.strip(' \t\n\r')
+		self.handle_financial(data)
+		self.handle_years(data)

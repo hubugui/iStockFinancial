@@ -13,6 +13,7 @@ from crawler_thread import *
 
 class crawler():
 	def __init__(self, max_io = 10, max_parser = 2, request_rate = 500):
+		self.access_history = {}
 		self.max_io = max_io
 		self.max_parser = max_parser
 		self.request_rate = request_rate
@@ -28,10 +29,10 @@ class crawler():
 			t.setDaemon(True)
 			t.start()
 
-		socket.setdefaulttimeout(5)
+		socket.setdefaulttimeout(20)
 
 	def urllib2_read(self, job):
-		response = urllib2.urlopen('http://' + job.host + job.get_url())
+		response = urllib2.urlopen(job.host + job.get_url())
 		job.set_content(response.read())
 
 	def urllib3_read(self, conn, job):
@@ -70,7 +71,10 @@ class crawler():
 			self.parser_queue.task_done()
 
 	def put(self, job):
-		self.io_queue.put(job)
+		key = job.host + job.url
+		if  key not in self.access_history:
+			self.access_history[key] = True
+			self.io_queue.put(job)
 
 	def join(self):
 		self.io_queue.join()
