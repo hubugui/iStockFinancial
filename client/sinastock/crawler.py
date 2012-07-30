@@ -47,7 +47,6 @@ class crawler():
 			while job.finish == False:
 				try:
 					beg = time.time()
-
 					if self.method == 'urllib2':
 						self.urllib2_read(job)
 					else:
@@ -62,13 +61,12 @@ class crawler():
 					print 'io_thread> err %s'%(err)
 					job.onfailure()
 
-			self.io_queue.task_done()
-
 	def parser_run(self):
 		while True:
 			job = self.parser_queue.get()
 			job.onsuccess()
 			self.parser_queue.task_done()
+			self.io_queue.task_done()
 
 	def put(self, job):
 		key = job.host + job.url

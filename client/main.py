@@ -18,7 +18,7 @@ def main(argv):
 	if len(argv) == 3:
 		# Normal, this case as increment pull or test 
 		setting['home'] = argv[1]
-		setting['years'] = [argv[2]]
+		setting['years'] = [int(argv[2])]
 		setting['robot'].go()
 	elif len(argv) == 2:
 		# pull all data since year 1989

@@ -55,7 +55,7 @@ class robot:
 		industry_num = 1#len(self.industrys)
 
 		stock_idx = 0
-		stock_num = 1
+		stock_num = 2
 		for industry_idx, ind in enumerate(self.industrys):
 			if ind.exist(setting['home']):
 				print '%03d.%s, %d->already exist'%(industry_idx + 1, ind.name, len(ind.stocks))
