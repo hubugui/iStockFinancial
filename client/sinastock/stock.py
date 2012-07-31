@@ -25,8 +25,6 @@ class stock(job):
 		return self.values
 
 	def onsuccess(self):
-		print '%03d. %s %s %s'%(self.idx, self.year, self.symbol, self.name)
-
 		self.values = {}
 		all_year = []
 
@@ -34,22 +32,27 @@ class stock(job):
 		parser.parse(self.content, self.values, all_year)
 		parser.close()
 
-		next_year = self.get_year() - 1
-		for req_year in setting['years']:
-			if req_year == next_year:
-				for per_year in all_year:
-					if req_year == int(per_year):
-						new_stock = stock(req_year, self.symbol, self.code, self.name)
-						new_stock.set_idx(self.idx)
-						setting['crawler'].put(new_stock)
-						#print new_stock.__repr__()
-						break
+		if len(self.values) > 0:
+			print '%03d. %s %s %s'%(self.idx, self.year, self.symbol, self.name)
 
-		#save to database
-		#if len(self.values) > 0:
-		#	for key, value in sorted(self.get_values().iteritems()):
-		#		key_pack = key.split(key_separator)
-		#		print '%s %s'%(key_pack[0], value)
+			next_year = self.get_year() - 1
+			for req_year in setting['years']:
+				if req_year == next_year:
+					for per_year in all_year:
+						if req_year == int(per_year):
+							new_stock = stock(req_year, self.symbol, self.code, self.name)
+							new_stock.set_idx(self.idx)
+							setting['crawler'].put(new_stock)
+							#print new_stock.__repr__()
+							break
+
+			#save to database
+			#if len(self.values) > 0:
+			#	for key, value in sorted(self.get_values().iteritems()):
+			#		key_pack = key.split(key_separator)
+			#		print '%s %s'%(key_pack[0], value)
+		else:
+			print '%03d. %s %s %s, no data'%(self.idx, self.year, self.symbol, self.name)
 
 	def onfailure(self):
 		print ''
