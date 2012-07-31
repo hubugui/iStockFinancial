@@ -6,8 +6,12 @@ import json
 import re
 import sys
 
+sys.path.append('././')
+
 from stock import *
 from job import *
+from common.util import *
+from sinastock.crawler import *
 
 class industry(job):
 	HOST = 'http://money.finance.sina.com.cn'
@@ -40,11 +44,9 @@ class industry(job):
 		print ''
 		print '%03d. %s %s, failure'%(self.idx, self.code, self.name)
 
-	def set_home(self, home):
-		self.home = home
-
+	'''
 	def fs(self, home='.'):
-		dir = '%s/%s'%(home, self.get_year())
+		dir = '%s/%s'%(home, self.year)
 		if not os.path.exists(dir):
 			os.mkdir(dir)
 		path = '%s/%s.js'%(dir, self.code)
@@ -87,3 +89,4 @@ class industry(job):
 				return False
 		else:
 			return False
+	'''

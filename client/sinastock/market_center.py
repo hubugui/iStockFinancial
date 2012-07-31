@@ -42,6 +42,8 @@ class market_center(job):
 		self.content = re.sub(r'"null,', r'"null",', self.content)
 
 	def onsuccess(self):
+		print '%s'%(self.name)
+
 		self.adjust()
 		self.json = json.loads(self.content, encoding="gbk")
 		self.csrc_recursion(self.json[1][0][1][3], 0)

@@ -14,18 +14,18 @@ class stock(job):
 
 	def __init__(self, year, symbol='sz600489', code='600489', name='ÖÐ½ð»Æ½ð'):
 		job.__init__(self, name, self.HOST, self.URL%(code, year), self.onsuccess, self.onfailure, 'stock')
-		job.year = year
 		self.symbol = symbol
 		self.code = code
+		self.set_year(year)
 
 	def __repr__(self):
-		return '%03d. %s %s %s'%(self.idx, self.symbol, self.name, self.year)
+		return '%03d. %s %s %s'%(self.idx, self.year, self.symbol, self.name)
 
 	def get_values(self):
 		return self.values
 
 	def onsuccess(self):
-		#print '%03d. %s %s %s'%(self.idx, self.symbol, self.name, self.year)
+		print '%03d. %s %s %s'%(self.idx, self.year, self.symbol, self.name)
 
 		self.values = {}
 		all_year = []
@@ -34,7 +34,7 @@ class stock(job):
 		parser.parse(self.content, self.values, all_year)
 		parser.close()
 
-		next_year = job.year - 1
+		next_year = self.get_year() - 1
 		for req_year in setting['years']:
 			if req_year == next_year:
 				for per_year in all_year:
@@ -42,7 +42,7 @@ class stock(job):
 						new_stock = stock(req_year, self.symbol, self.code, self.name)
 						new_stock.set_idx(self.idx)
 						setting['crawler'].put(new_stock)
-						print new_stock.__repr__()
+						#print new_stock.__repr__()
 						break
 
 		#save to database
@@ -53,4 +53,4 @@ class stock(job):
 
 	def onfailure(self):
 		print ''
-		print '%03d. %s %s %s, failure'%(self.idx, self.code, self.name, self.year)
+		print '%03d. %s %s %s, failure'%(self.idx, self.year, self.symbol, self.name)

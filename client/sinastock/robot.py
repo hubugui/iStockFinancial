@@ -57,23 +57,20 @@ class robot:
 		stock_idx = 0
 		stock_num = 2
 		for industry_idx, ind in enumerate(self.industrys):
-			if ind.exist(setting['home']):
-				print '%03d.%s, %d->already exist'%(industry_idx + 1, ind.name, len(ind.stocks))
-			else:
-				print '%03d.%s, %d'%(industry_idx + 1, ind.name, len(ind.stocks_json))
+			print '%03d.%s, %d'%(industry_idx + 1, ind.name, len(ind.stocks_json))
 
-				for element in ind.stocks_json:
-					stock_idx += 1
+			for element in ind.stocks_json:
+				stock_idx += 1
 
-					job = stock(year, element["symbol"], element["code"], element["name"])
-					job.set_idx(stock_idx)
-					ind.stocks.append(job)
-					setting['crawler'].put(job)
+				job = stock(year, element["symbol"], element["code"], element["name"])
+				job.set_idx(stock_idx)
+				ind.stocks.append(job)
+				setting['crawler'].put(job)
 
-					if stock_idx >= stock_num:
-						break
-				if industry_idx + 1 >= industry_num:
+				if stock_idx >= stock_num:
 					break
+			if industry_idx + 1 >= industry_num:
+				break
 
 		setting['crawler'].join()
 		print '%s> over, stock_idx=%d'%(self.get_time(time.time()), stock_idx)
