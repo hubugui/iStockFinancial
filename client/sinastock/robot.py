@@ -6,6 +6,7 @@ import time
 import Queue
 
 from crawler import *
+from database import *
 from industry import *
 from job import *
 from market_center import *
@@ -76,6 +77,9 @@ class robot:
 		print '%s> over, stock_idx=%d'%(self.get_time(time.time()), stock_idx)
 
 	def go(self):
+		setting['db'] = database(setting['home'], 'istock')
+		setting['db'].install()
+
 		self.fire_financial_keys()
 
 		year = setting['years'][-1]

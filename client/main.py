@@ -9,7 +9,7 @@ from sinastock.setting import *
 
 def usage():
 	print "for example: 'python main.py /opt/istock 2011'"
-	print "for example: 'python main.py .', This means that pull data from year 1989 to the system time"
+	print "for example: 'python main.py .', This means that pull data of from year 1989 to the system time"
 
 def main(argv):
 	setting['crawler'] = crawler(10, 5, 500)
@@ -28,7 +28,7 @@ def main(argv):
 			years.append(year)
 
 		setting['home'] = argv[1]
-		setting['years'] = years		
+		setting['years'] = years
 		if len(years) > 0:
 			setting['robot'].go()
 		else:
@@ -38,4 +38,9 @@ def main(argv):
 		usage()
 
 if __name__ == '__main__':
-	main(sys.argv)
+	try:
+		main(sys.argv)
+	except:
+		s = sys.exc_info()
+		print "Error '%s' happened on line %d" % (s[1], s[2].tb_lineno)
+        usage()		

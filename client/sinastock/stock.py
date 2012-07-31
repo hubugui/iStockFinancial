@@ -21,8 +21,10 @@ class stock(job):
 	def __repr__(self):
 		return '%03d. %s %s %s'%(self.idx, self.year, self.symbol, self.name)
 
+	'''
 	def get_values(self):
 		return self.values
+	'''
 
 	def onsuccess(self):
 		self.values = {}
@@ -35,6 +37,7 @@ class stock(job):
 		if len(self.values) > 0:
 			print '%03d. %s %s %s'%(self.idx, self.year, self.symbol, self.name)
 
+			# crawl prev year
 			next_year = self.get_year() - 1
 			for req_year in setting['years']:
 				if req_year == next_year:
@@ -46,11 +49,10 @@ class stock(job):
 							#print new_stock.__repr__()
 							break
 
-			#save to database
-			#if len(self.values) > 0:
-			#	for key, value in sorted(self.get_values().iteritems()):
-			#		key_pack = key.split(key_separator)
-			#		print '%s %s'%(key_pack[0], value)
+			# save to database
+			# for key, value in sorted(self.get_values().iteritems()):
+			#	key_pack = key.split(key_separator)
+			#	print '%s %s'%(key_pack[0], value)
 		else:
 			print '%03d. %s %s %s, no data'%(self.idx, self.year, self.symbol, self.name)
 
