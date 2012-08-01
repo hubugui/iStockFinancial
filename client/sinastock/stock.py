@@ -13,9 +13,10 @@ class stock(job):
 	URL = '/corp/go.php/vFD_FinancialGuideLine/stockid/%s/ctrl/%d/displaytype/4.phtml'
 
 	def __init__(self, year, symbol='sz600489', code='600489', name='ÖÐ½ð»Æ½ð'):
-		job.__init__(self, name, self.HOST, self.URL%(code, year), self.onsuccess, self.onfailure, 'stock')
+		job.__init__(self, name, self.HOST, self.URL%(code, year), self.onsuccess, self.onfailure, 'stock')		
 		self.symbol = symbol
 		self.code = code
+		self.industry_id = 0
 		self.set_year(year)
 
 	def __repr__(self):
