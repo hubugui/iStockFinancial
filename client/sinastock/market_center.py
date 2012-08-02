@@ -9,6 +9,7 @@ import re
 
 from industry import *
 from job import *
+from setting import *
 
 class market_center(job):
 	MARKET_HOST = 'http://money.finance.sina.com.cn'
@@ -46,34 +47,35 @@ class market_center(job):
 
 		self.adjust()
 		self.json = json.loads(self.content, encoding="gbk")
-		self.csrc_recursion(self.json[1][0][1][3], 0)
+		self.csrc_recursion(self.json[1][0][1][3], 0, '')
 
 	def onfailure(self):
 		print '%s, failure'%(self.name)
 
-	'''
 	def echo(self, msg, level):
 		for i in range(level):
 			print '    ',
-		print msg.encode('gbk')
-	'''
+		print msg
 
 	# CSRC(China Securities Regulatory Commission) Industry
-	def csrc_recursion(self, array, level):
-		'''	
+	def csrc_recursion(self, array, level, parent_name):
+		ind = None
 		if len(array[1]) == 0:
+			ind = industry(array[0], array[2], parent_name)
 			msg = array[0] + '-' + array[2]
 		else:
+			ind = industry(array[0], '', parent_name)
 			msg = array[0] + '-' + str(len(array[1]))
 		self.echo(msg, level)
-		'''
+
+		setting['db'].industry_add(ind)
 
 		for element in array[1]:
 			if isinstance(element, (list, tuple)):
-				self.csrc_recursion(element, level + 1)
+				self.csrc_recursion(element, level + 1, array[0])
 
 				if not isinstance(element[1], (list, tuple)):
-					ind = industry(element[0], element[2])
+					ind = industry(element[0], element[2], array[0])
 					self.industrys.append(ind)
 
 	def get_csrc_industrys(self):

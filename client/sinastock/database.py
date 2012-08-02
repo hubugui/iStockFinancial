@@ -2,20 +2,37 @@
 
 import os
 import sqlite3
+import threading
 
 from industry import *
 from stock import *
 
-class database():
+class database():	
 	def __init__(self, home, name):
-		self.conn = sqlite3.connect(home + '/' + name + '.db')
+		self.path = home + '/' + name + '.db'
+		self.pools = {}
 
 	def __del__(self):
-		self.conn.close()
+		for key, value in self.pools.iteritems():
+			self.disconnect(value)
+		self.pools = {}
+
+	def connect(self):
+		print threading.currentThread().getName()
+
+		if threading.currentThread().getName() not in self.pools:
+			conn = sqlite3.connect(self.path)
+			self.pools[threading.currentThread().getName()] = conn
+		else:
+			conn = self.pools[threading.currentThread().getName()]
+		return conn
+
+	def disconnect(self, conn):
+		conn.close()
 
 	def install(self):
 		print 'database install'
-		cur = self.conn.cursor()
+		cur = self.connect().cursor()
 
 		# industry
 		sql = "create table if not exists industry( \
@@ -46,19 +63,19 @@ class database():
 
 	def uninstall(self):
 		print 'database uninstall'
-		cur = self.conn.cursor()
+		cur = self.connect().cursor()
 		cur.execute('drop table if exists industry')
 		cur.execute('drop table if exists stock')
 		cur.close()
 
 	def industry_add(self, ind):
-		cur = self.conn.cursor()
-		cur.executemany('insert into industry values(?, ?, ?)', ind.pid, ind.code, ind.name)
+		cur = self.connect().cursor()
+		cur.execute('insert into industry values(%d, %s, %s)', ind.pid, ind.code, ind.name)
 		cur.close()
 
 	def industry_query(self, name):
-		cur = self.conn.cursor()
-		cur.execute('select * from industry where name=?', name)
+		cur = self.connect().cursor()
+		cur.execute('select * from industry where name=%s', name)
 
 		results = cur.fetchone()
 		ind = industry()
@@ -71,7 +88,7 @@ class database():
 		return ind
 
 	def stock_add(self, stock):
-		cur = self.conn.cursor()
+		cur = self.connect().cursor()
 		sql = 'insert into stock values(%s, %s, %s, %d, %d, '%(stock.symbol, stock.code, stock.name, stock.industry_id, stock.year)
 		values = stock.get_values()
 		for i in range(len(financial_keys)):

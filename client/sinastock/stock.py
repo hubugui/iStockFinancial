@@ -14,11 +14,11 @@ class stock(job):
 	HOST = 'http://money.finance.sina.com.cn'
 	URL = '/corp/go.php/vFD_FinancialGuideLine/stockid/%s/ctrl/%d/displaytype/4.phtml'
 
-	def __init__(self, year, symbol='sz600489', code='600489', name='中金黄金'):
+	def __init__(self, year, symbol='sz600489', code='600489', name='中金黄金', industry_id=-1):
 		job.__init__(self, name, self.HOST, self.URL%(code, year), self.onsuccess, self.onfailure, 'stock')		
 		self.symbol = symbol
 		self.code = code
-		self.industry_id = 0
+		self.industry_id = industry_id
 		self.set_year(year)
 
 	def __repr__(self):

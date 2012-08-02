@@ -19,11 +19,10 @@ class industry(job):
 	HOST = 'http://money.finance.sina.com.cn'
 	URL = '/quotes_service/api/json_v2.php/Market_Center.getHQNodeData?page=1&num=10000&sort=symbol&asc=1&node=%s&_s_r_a=auto'
 
-	def __init__(self, name='nongye', code='hangye_za01'):
+	def __init__(self, name='nongye', code='hangye_za01', parent_name=''):
 		job.__init__(self, name, self.HOST, self.URL%(code), self.onsuccess, self.onfailure, 'industry')
-		self.pid = -1
-		self.id = 0
 		self.code = code
+		self.parent_name = parent_name
 		self.stocks = []
 		self.elapsed = 0
 		self.stocks_json = ''

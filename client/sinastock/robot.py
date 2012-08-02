@@ -40,9 +40,9 @@ class robot:
 
 	def fire_industry(self):
 		self.industrys = self.market.get_csrc_industrys()
-		for industry_idx, ind in enumerate(self.industrys):
-			ind.set_idx(industry_idx + 1)
-			setting['crawler'].put(ind)
+		#for industry_idx, ind in enumerate(self.industrys):
+		#	ind.set_idx(industry_idx + 1)
+		#	setting['crawler'].put(ind)
 
 		print '%s> pull csrc industry, number=%d'%(self.get_time(time.time()), len(self.industrys))
 
@@ -53,25 +53,24 @@ class robot:
 
 	def fire_stock(self, year):
 		industry_idx = 0
-		industry_num = 1#len(self.industrys)
+		industry_num = 0#len(self.industrys)
 
 		stock_idx = 0
-		stock_num = 2
+		stock_num = 0
 		for industry_idx, ind in enumerate(self.industrys):
+			if industry_idx >= industry_num:
+				break
 			print '%03d.%s, %d'%(industry_idx + 1, ind.name, len(ind.stocks_json))
 
 			for element in ind.stocks_json:
+				if stock_idx >= stock_num:
+					break
 				stock_idx += 1
 
-				job = stock(year, element["symbol"], element["code"], element["name"])
+				job = stock(year, element["symbol"], element["code"], element["name"], ind.id)
 				job.set_idx(stock_idx)
 				ind.stocks.append(job)
 				setting['crawler'].put(job)
-
-				if stock_idx >= stock_num:
-					break
-			if industry_idx + 1 >= industry_num:
-				break
 
 		setting['crawler'].join()
 		print '%s> over, stock_idx=%d'%(self.get_time(time.time()), stock_idx)
