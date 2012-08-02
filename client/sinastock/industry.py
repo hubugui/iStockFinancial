@@ -8,10 +8,12 @@ import sys
 
 sys.path.append('././')
 
-from stock import *
-from job import *
 from common.util import *
-from sinastock.crawler import *
+from crawler import *
+from database import *
+from job import *
+from setting import *
+from stock import *
 
 class industry(job):
 	HOST = 'http://money.finance.sina.com.cn'
@@ -41,6 +43,7 @@ class industry(job):
 			print '.',
 			self.adjust()
 			self.stocks_json = json.loads(self.content, encoding="gbk")
+			setting['db'].industry_add(self)
 
 	def onfailure(self):
 		print ''

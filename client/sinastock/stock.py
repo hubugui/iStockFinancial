@@ -3,6 +3,8 @@
 
 import threading
 
+from crawler import *
+from database import *
 from industry import *
 from job import *
 from setting import *
@@ -22,10 +24,8 @@ class stock(job):
 	def __repr__(self):
 		return '%03d. %s %s %s'%(self.idx, self.year, self.symbol, self.name)
 
-	'''
 	def get_values(self):
 		return self.values
-	'''
 
 	def onsuccess(self):
 		self.values = {}
@@ -51,9 +51,7 @@ class stock(job):
 							break
 
 			# save to database
-			# for key, value in sorted(self.get_values().iteritems()):
-			#	key_pack = key.split(key_separator)
-			#	print '%s %s'%(key_pack[0], value)
+			setting['db'].stock_add(self)
 		else:
 			print '%03d. %s %s %s, no data'%(self.idx, self.year, self.symbol, self.name)
 

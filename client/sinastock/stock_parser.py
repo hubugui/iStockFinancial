@@ -102,7 +102,8 @@ class stock_parser(SGMLParser):
 		if self.a_segment == True:
 			if data in financial_keys:
 				self.intercept = True
-				self.key = str('%3d'%(self.data_idx)) +  key_separator + data
+				#self.key = str('%3d'%(self.data_idx)) +  key_separator + data
+				self.key = data
 				self.data_idx += 1
 		elif self.td_segment == True:
 			if self.intercept == True:
@@ -125,7 +126,6 @@ class stock_parser(SGMLParser):
 			if self.years_intercept == True:
 				if len(data) > 0:
 					self.years.append(data)
-					#print data
 		elif self.td_segment == True:
 			if data.startswith(years_key):
 				self.years_intercept = True
