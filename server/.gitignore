@@ -36,4 +36,6 @@ nosetests.xml
 .html
 .htm
 
+.js
 .swp
+.vim
