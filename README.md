@@ -3,7 +3,7 @@ iStockFinancial
 
 sina stock and financial statistical tools.
 
-It includes client and server, client provide tools to download industry and stock information to JSON.
+It includes client and server, client provide tools to download industry and stock information to database.
 server provide Web access interface.
 
 The development is based on python 2.6.1 and urllib3 V1.4
