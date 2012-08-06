@@ -44,7 +44,7 @@ class stock(job):
 				if req_year == next_year:
 					for per_year in all_year:
 						if req_year == int(per_year):
-							new_stock = stock(req_year, self.symbol, self.code, self.name)
+							new_stock = stock(req_year, self.symbol, self.code, self.name, self.industry_id)
 							new_stock.set_idx(self.idx)
 							setting['crawler'].put(new_stock)
 							#print new_stock.__repr__()

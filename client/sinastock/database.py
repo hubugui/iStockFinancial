@@ -11,10 +11,10 @@ class database():
 		self.path = home + '/' + name + '.db'
 		self.pools = {}
 
-	def __del__(self):
-		for key, value in self.pools.iteritems():
-			self.disconnect(value)
-		self.pools = {}
+	#def __del__(self):
+		#for key, value in self.pools.iteritems():
+		#	self.disconnect(value)
+		#self.pools = {}
 
 	def connect(self):
 		#print threading.currentThread().getName()
@@ -26,6 +26,11 @@ class database():
 		return conn
 
 	def disconnect(self, conn):
+		if threading.currentThread().getName() not in self.pools:
+			conn = sqlite3.connect(self.path)
+			self.pools[threading.currentThread().getName()] = conn
+		else:
+			conn = self.pools[threading.currentThread().getName()]
 		conn.close()
 
 	def install(self):
@@ -35,11 +40,11 @@ class database():
 		# industry
 		sql = "create table if not exists industry( \
 			id integer primary key autoincrement, \
-			name varchar(128) unique, \
+			name varchar(128), \
 			code varchar(64), \
-			pname varchar(128))"
+			pid integer)"
 		cur.execute(sql);
-		cur.execute('create unique index if not exists industry_name_index on industry(name)')
+		cur.execute('create unique index if not exists industry_name_code_index on industry(name, code)')
 
 		# stock
 		sql = "create table if not exists stock( \
@@ -54,8 +59,8 @@ class database():
 
 		sql += ', foreign key(industry_id) references industry(id))'
 		cur.execute(sql)
-		cur.execute('create unique index if not exists stock_symbol_index on stock(symbol)')
-		cur.execute('create unique index if not exists stock_name_index on stock(name)')
+		cur.execute('create unique index if not exists stock_symbol_index on stock(symbol, year)')
+		cur.execute('create unique index if not exists stock_name_index on stock(name, year)')
 		cur.close()
 
 	def uninstall(self):
@@ -66,13 +71,16 @@ class database():
 		cur.close()
 
 	def industry_add(self, ind):
-		cur = self.connect().cursor()
-		cur.execute("insert into industry values(null, '%s', '%s', '%s')"%(ind.name, ind.code, ind.parent_name))
+		conn = self.connect()
+		cur = conn.cursor()
+		cur.execute("insert into industry values(null, '%s', '%s', '%d')"%(ind.name, ind.code, ind.pid))
+		conn.commit()
 		cur.close()
 		return cur.lastrowid
 
 	def industry_query(self, name):
-		cur = self.connect().cursor()
+		conn = self.connect()
+		cur = conn.cursor()
 		cur.execute("select * from industry where name='%s'"%(name))
 
 		results = cur.fetchone()
@@ -80,18 +88,23 @@ class database():
 		ind.id = results[0]
 		ind.name = results[1]
 		ind.code = results[2]
-		ind.parent_name = results[3]
-	
+		ind.pid = results[3]
+
 		cur.close()
 		return ind
 
 	def stock_add(self, stock):
 		values = stock.get_values()
-		cur = self.connect().cursor()
-		sql = "insert into stock values(null, '%s', '%s', '%s', %d, %d, "%(stock.symbol, stock.code, stock.name, stock.industry_id, stock.year)
+		conn = self.connect()
+		cur = conn.cursor()
+		sql = "insert into stock values(null, '%s', '%s', '%s', %d, %d"%(stock.symbol, stock.code, stock.name, stock.industry_id, stock.year)
 		for i in range(len(financial_keys)):
-			sql += values[financial_keys[i]] + ', '
+			sql += ', ' + str(values[financial_keys[i]])
 		sql += ')'
+
+		print sql
+		
 		cur.execute(sql)
+		conn.commit()
 		cur.close()
 		return cur.lastrowid

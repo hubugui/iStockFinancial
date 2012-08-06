@@ -40,9 +40,9 @@ class robot:
 
 	def fire_industry(self):
 		self.industrys = self.market.get_csrc_industrys()
-		#for industry_idx, ind in enumerate(self.industrys):
-		#	ind.set_idx(industry_idx + 1)
-		#	setting['crawler'].put(ind)
+		for industry_idx, ind in enumerate(self.industrys):
+			ind.set_idx(industry_idx + 1)
+			setting['crawler'].put(ind)
 
 		print '%s> pull csrc industry, number=%d'%(self.get_time(time.time()), len(self.industrys))
 
@@ -53,14 +53,14 @@ class robot:
 
 	def fire_stock(self, year):
 		industry_idx = 0
-		industry_num = 0#len(self.industrys)
+		industry_num = 1#len(self.industrys)
 
 		stock_idx = 0
-		stock_num = 0
+		stock_num = 1
 		for industry_idx, ind in enumerate(self.industrys):
 			if industry_idx >= industry_num:
 				break
-			print '%03d.%s, %d'%(industry_idx + 1, ind.name, len(ind.stocks_json))
+			print '%03d.%s %d, %d'%(industry_idx + 1, ind.name, ind.id, len(ind.stocks_json))
 
 			for element in ind.stocks_json:
 				if stock_idx >= stock_num:
@@ -77,6 +77,7 @@ class robot:
 
 	def go(self):
 		setting['db'] = database(setting['home'], 'istock')
+		setting['db'].uninstall()
 		setting['db'].install()
 
 		self.fire_financial_keys()

@@ -47,7 +47,7 @@ class market_center(job):
 
 		self.adjust()
 		self.json = json.loads(self.content, encoding="gbk")
-		self.csrc_recursion(self.json[1][0][1][3], 0, '')
+		self.csrc_recursion(self.json[1][0][1][3], 0, 0)
 
 	def onfailure(self):
 		print '%s, failure'%(self.name)
@@ -58,25 +58,27 @@ class market_center(job):
 		print msg
 
 	# CSRC(China Securities Regulatory Commission) Industry
-	def csrc_recursion(self, array, level, parent_name):
+	def csrc_recursion(self, array, level, pid):
 		ind = None
 		if len(array[1]) == 0:
-			ind = industry(array[0], array[2], parent_name)
+			ind = industry(array[0], array[2], pid)
 			msg = array[0] + '-' + array[2]
+			self.industrys.append(ind)
 		else:
-			ind = industry(array[0], '', parent_name)
+			ind = industry(array[0], '', pid)
 			msg = array[0] + '-' + str(len(array[1]))
-		self.echo(msg, level)
+		# self.echo(msg, level)
 
-		ind.id = setting['db'].industry_add(ind)
+		id = setting['db'].industry_add(ind)
+		ind.id = id
 
 		for element in array[1]:
 			if isinstance(element, (list, tuple)):
-				self.csrc_recursion(element, level + 1, array[0])
+				self.csrc_recursion(element, level + 1, id)
 
-				if not isinstance(element[1], (list, tuple)):
-					ind = industry(element[0], element[2], array[0])
-					self.industrys.append(ind)
+#				if not isinstance(element[1], (list, tuple)):
+#					ind = industry(element[0], element[2], id)
+#					self.industrys.append(ind)
 
 	def get_csrc_industrys(self):
 		return self.industrys
