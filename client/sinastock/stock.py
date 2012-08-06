@@ -22,7 +22,7 @@ class stock(job):
 		self.set_year(year)
 
 	def __repr__(self):
-		return '%03d. %s %s %s'%(self.idx, self.year, self.symbol, self.name)
+		return '%03d. %d %s %s'%(self.idx, self.year, self.symbol, self.name)
 
 	def get_values(self):
 		return self.values
@@ -36,7 +36,7 @@ class stock(job):
 		parser.close()
 
 		if len(self.values) > 0:
-			print '%03d. %s %s %s'%(self.idx, self.year, self.symbol, self.name)
+			print '%03d. %d %s %s'%(self.idx, self.year, self.symbol, self.name)
 
 			# crawl prev year
 			next_year = self.get_year() - 1
@@ -47,7 +47,6 @@ class stock(job):
 							new_stock = stock(req_year, self.symbol, self.code, self.name, self.industry_id)
 							new_stock.set_idx(self.idx)
 							setting['crawler'].put(new_stock)
-							#print new_stock.__repr__()
 							break
 
 			# save to database

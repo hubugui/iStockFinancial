@@ -7,6 +7,9 @@ import urllib2
 import json
 import re
 
+sys.path.append('././')
+
+from common.util import *
 from industry import *
 from job import *
 from setting import *
@@ -43,7 +46,7 @@ class market_center(job):
 		self.content = re.sub(r'"null,', r'"null",', self.content)
 
 	def onsuccess(self):
-		print '%s'%(self.name)
+		print '%s> %s'%(get_time(time.time()), self.name)
 
 		self.adjust()
 		self.json = json.loads(self.content, encoding="gbk")
@@ -75,10 +78,6 @@ class market_center(job):
 		for element in array[1]:
 			if isinstance(element, (list, tuple)):
 				self.csrc_recursion(element, level + 1, id)
-
-#				if not isinstance(element[1], (list, tuple)):
-#					ind = industry(element[0], element[2], id)
-#					self.industrys.append(ind)
 
 	def get_csrc_industrys(self):
 		return self.industrys

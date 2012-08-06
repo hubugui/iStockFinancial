@@ -2,6 +2,7 @@
 
 import os
 import sys
+import time
 
 def file_exist(path):
 	if os.path.isdir(path):
@@ -14,3 +15,6 @@ def file_size(path):
 		return os.stat(path).st_size
 	else:
 		return 0
+
+def get_time(t):
+	return time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(t))

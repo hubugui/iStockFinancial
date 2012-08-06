@@ -2,19 +2,20 @@
 
 import os
 import sqlite3
+import sys
+import time
 import threading
+
+sys.path.append('././')
+
+from common.util import *
 from industry import *
 from stock import *
 
 class database():	
 	def __init__(self, home, name):
-		self.path = home + '/' + name + '.db'
+		self.path = home + '/' + name + '-' + get_time(time.time()) + '.db'
 		self.pools = {}
-
-	#def __del__(self):
-		#for key, value in self.pools.iteritems():
-		#	self.disconnect(value)
-		#self.pools = {}
 
 	def connect(self):
 		#print threading.currentThread().getName()
@@ -102,7 +103,7 @@ class database():
 			sql += ', ' + str(values[financial_keys[i]])
 		sql += ')'
 
-		print sql
+		#print sql
 		
 		cur.execute(sql)
 		conn.commit()
