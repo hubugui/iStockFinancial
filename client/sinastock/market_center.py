@@ -72,12 +72,11 @@ class market_center(job):
 			msg = array[0] + '-' + str(len(array[1]))
 		# self.echo(msg, level)
 
-		id = setting['db'].industry_add(ind)
-		ind.id = id
+		ind.id = setting['db'].industry_add(ind)
 
 		for element in array[1]:
 			if isinstance(element, (list, tuple)):
-				self.csrc_recursion(element, level + 1, id)
+				self.csrc_recursion(element, level + 1, ind.id)
 
 	def get_csrc_industrys(self):
 		return self.industrys

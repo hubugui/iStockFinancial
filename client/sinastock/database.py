@@ -20,7 +20,7 @@ class database():
 	def connect(self):
 		#print threading.currentThread().getName()
 		if threading.currentThread().getName() not in self.pools:
-			conn = sqlite3.connect(self.path)
+			conn = sqlite3.connect(self.path, timeout=15)
 			self.pools[threading.currentThread().getName()] = conn
 		else:
 			conn = self.pools[threading.currentThread().getName()]

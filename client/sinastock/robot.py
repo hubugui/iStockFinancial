@@ -56,12 +56,15 @@ class robot:
 		industry_num = 1#len(self.industrys)
 
 		stock_idx = 0
+		stock_number = 1
 		for industry_idx, ind in enumerate(self.industrys):
 			if industry_idx >= industry_num:
 				break
 			print '%03d.%s %d, %d'%(industry_idx + 1, ind.name, ind.id, len(ind.stocks_json))
 
 			for element in ind.stocks_json:
+				if stock_idx >= stock_number:
+					break
 				stock_idx += 1
 
 				job = stock(year, element["symbol"], element["code"], element["name"], ind.id)
@@ -81,7 +84,7 @@ class robot:
 
 		year = setting['years'][-1]
 		total_elapsed = 0
-		for method in ['urllib3']:
+		for method in ['urllib2']:
 			setting['crawler'].set_method(method)
 
 			self.fire_market()
@@ -94,9 +97,9 @@ class robot:
 
 			self.fire_stock(year)
 
-			end_t = time.time()
-			elapsed = end_t - beg_t
+			elapsed = time.time() - beg_t
 			total_elapsed += elapsed
 
-			print '%s> year=%d %s byebye, elapsed %ds'%(get_time(end_t), year, method, elapsed)
-			print 'total elapsed %ds'%(total_elapsed)
+			print '%s> year=%d %s byebye, elapsed %ds'%(get_time(time.time()), year, method, elapsed)
+
+		print 'total elapsed %ds'%(total_elapsed)
