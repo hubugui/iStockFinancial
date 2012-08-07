@@ -53,7 +53,7 @@ class robot:
 
 	def fire_stock(self, year):
 		industry_idx = 0
-		industry_num = self.industrys
+		industry_num = 2#len(self.industrys)
 
 		stock_idx = 0
 		stock_number = 10000 
@@ -71,8 +71,8 @@ class robot:
 				job.set_idx(stock_idx)
 				ind.stocks.append(job)
 				setting['crawler'].put(job)
-			setting['crawler'].join()
-		
+
+		setting['crawler'].join()
 		print '%s> over, stock_idx=%d'%(get_time(time.time()), stock_idx)
 
 	def go(self):
