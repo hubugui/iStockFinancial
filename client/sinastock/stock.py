@@ -52,8 +52,8 @@ class stock(job):
 			# save to database
 			setting['db'].stock_add(self)
 		else:
-			print '%03d. %s %s %s, no data'%(self.idx, self.year, self.symbol, self.name)
+			print '%03d. %d %s %s, no data'%(self.idx, self.year, self.symbol, self.name)
 
 	def onfailure(self):
 		print ''
-		print '%03d. %s %s %s, failure'%(self.idx, self.year, self.symbol, self.name)
+		print '%03d. %d %s %s, failure'%(self.idx, self.year, self.symbol, self.name)

@@ -43,7 +43,7 @@ class industry(job):
 			print '.',
 			self.adjust()
 			self.stocks_json = json.loads(self.content, encoding="gbk")
-
+		
 	def onfailure(self):
 		print ''
 		print '%03d. %s %s, failure'%(self.idx, self.code, self.name)

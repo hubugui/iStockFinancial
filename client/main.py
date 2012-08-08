@@ -16,7 +16,7 @@ def main(argv):
 	setting['robot'] = robot()
 
 	if len(argv) == 3:
-		# Normal, this case as increment pull or test
+		# normal, this case as increment pull or test
 		setting['home'] = argv[1]
 		setting['years'] = [int(argv[2])]
 		setting['robot'].go()
@@ -42,4 +42,5 @@ if __name__ == '__main__':
 		main(sys.argv)
 	except:
 		s = sys.exc_info()
+		print s
 		print "Error '%s' happened on line %d" % (s[1], s[2].tb_lineno)

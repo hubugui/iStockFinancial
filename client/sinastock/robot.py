@@ -56,7 +56,7 @@ class robot:
 		industry_num = self.industrys
 
 		stock_idx = 0
-		stock_number = 10000 
+		stock_number = 1 
 		for industry_idx, ind in enumerate(self.industrys):
 			if industry_idx >= industry_num:
 				break
@@ -71,13 +71,13 @@ class robot:
 				job.set_idx(stock_idx)
 				ind.stocks.append(job)
 				setting['crawler'].put(job)
+
 			setting['crawler'].join()
 		
 		print '%s> over, stock_idx=%d'%(get_time(time.time()), stock_idx)
 
 	def go(self):
 		setting['db'] = database(setting['home'], 'istock')
-		setting['db'].uninstall()
 		setting['db'].install()
 
 		self.fire_financial_keys()

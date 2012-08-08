@@ -14,7 +14,7 @@ from stock import *
 
 class database():	
 	def __init__(self, home, name):
-		self.path = home + '/' + name + '-' + get_time(time.time()) + '.db'
+		self.path = home + '/' + name + '.db'
 		self.pools = {}
 
 	def connect(self):
@@ -74,7 +74,7 @@ class database():
 	def industry_add(self, ind):
 		conn = self.connect()
 		cur = conn.cursor()
-		cur.execute("insert into industry values(null, '%s', '%s', '%d')"%(ind.name, ind.code, ind.pid))
+		cur.execute("insert or ignore into industry values(null, '%s', '%s', '%d')"%(ind.name, ind.code, ind.pid))
 		conn.commit()
 		cur.close()
 		return cur.lastrowid
@@ -95,17 +95,23 @@ class database():
 		return ind
 
 	def stock_add(self, stock):
-		values = stock.get_values()
-		conn = self.connect()
-		cur = conn.cursor()
-		sql = "insert into stock values(null, '%s', '%s', '%s', %d, %d"%(stock.symbol, stock.code, stock.name, stock.industry_id, stock.year)
-		for i in range(len(financial_keys)):
-			sql += ', ' + str(values[financial_keys[i]])
-		sql += ')'
-
-		#print sql
-		
-		cur.execute(sql)
-		conn.commit()
-		cur.close()
-		return cur.lastrowid
+		rid = -1
+		try:
+			values = stock.get_values()
+			conn = self.connect()
+			cur = conn.cursor()
+			sql = "insert or ignore into stock values(null, '%s', '%s', '%s', %d, %d"%(stock.symbol, stock.code, stock.name, stock.industry_id, stock.year)
+			for i in range(len(financial_keys)):
+				sql += ', ' + str(values[financial_keys[i]])
+			sql += ')'
+	
+			#print sql
+			
+			cur.execute(sql)
+			conn.commit()
+			cur.close()
+			rid = cur.lastrowid
+		except:
+			print sys.exc_info() 
+		finally:
+			return rid
